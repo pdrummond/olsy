@@ -2,6 +2,7 @@ import React from 'react';
 import { Meteor } from 'meteor/meteor';
 
 import RaisedButton from 'material-ui/lib/raised-button';
+import FlatButton from 'material-ui/lib/flat-button';
 import AppBar from 'material-ui/lib/app-bar';
 import IconButton from 'material-ui/lib/icon-button';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
@@ -14,14 +15,15 @@ import Avatar from 'material-ui/lib/avatar';
 
 import { Projects } from '../../api/projects/projects.js';
 import ProjectLister from '../components/ProjectLister.jsx';
+import NewProjectDialog from '../components/NewProjectDialog.jsx';
+import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog.jsx';
 import { displayError } from '../helpers/errors.js';
-import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog';
-
 
 import {
+    insertProject,
+    removeProject,
     updateIsFavourite,
-    updateProjectOrder,
-    removeProject
+    updateProjectOrder
 } from '../../api/projects/methods.js';
 
 const AUTO_DOCK_WIDTH = 1200;
@@ -31,10 +33,13 @@ export default class ProjectPage extends React.Component {
         super(props);
         this.state = {
             openLeftSidebar: false,
+            openNewProjectDialog: false,
             openConfirmProjectDeleteDialog: false
         };
         this.handleToggleLeftSidebar = this.handleToggleLeftSidebar.bind(this);
         this.onRemoveProjectSelected = this.onRemoveProjectSelected.bind(this);
+        this.onNewProjectSelected = this.onNewProjectSelected.bind(this);
+        this.insertProject = this.insertProject.bind(this);
         this.deleteProject = this.deleteProject.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
     }
@@ -46,6 +51,10 @@ export default class ProjectPage extends React.Component {
     render() {
         return (
             <div className="project-page">
+                <NewProjectDialog
+                    open={this.state.openNewProjectDialog}
+                    onCancelSelected={() => { this.setState({openNewProjectDialog: false})}}
+                    onOkSelected={this.insertProject}/>
                 <ConfirmProjectDeleteDialog
                     open={this.state.openConfirmProjectDeleteDialog}
                     onCancelSelected={() => { this.setState({openConfirmProjectDeleteDialog: false})}}
@@ -55,7 +64,11 @@ export default class ProjectPage extends React.Component {
                     docked={this.state.width > AUTO_DOCK_WIDTH}
                     open={this.state.width > AUTO_DOCK_WIDTH ? true : this.state.openLeftSidebar}
                     onRequestChange={open => this.setState({openLeftSidebar:open})}>
-                    <AppBar title="Home" style={{backgroundColor: Colors.red700}} onLeftIconButtonTouchTap={this.handleToggleLeftSidebar}/>
+                    <AppBar
+                        title="Home"
+                        iconElementRight={<FlatButton onTouchTap={this.onNewProjectSelected} label="New Project" primary={true} />}
+                        style={{backgroundColor: Colors.red700}}
+                        onLeftIconButtonTouchTap={this.handleToggleLeftSidebar}/>
                     <ProjectLister
                         projects={this.props.projects}
                         onRemoveFavouriteSelected={this.onRemoveFavouriteSelected}
@@ -108,6 +121,15 @@ export default class ProjectPage extends React.Component {
 
     onRemoveProjectSelected(project) {
         this.setState({openConfirmProjectDeleteDialog: true, selectedProject: project});
+    }
+
+    onNewProjectSelected() {
+        this.setState({openNewProjectDialog: true});
+    }
+
+    insertProject(name, key) {
+        this.setState({openNewProjectDialog: false});
+        insertProject.call({name,key}, displayError);
     }
 
     deleteProject() {

@@ -18,13 +18,14 @@ const PROJECT_ID_ONLY = new SimpleSchema({
 const DEFAULT_THEME = 'blue';
 
 export const insertProject = new ValidatedMethod({
-    name: 'projects.insert',
+    name: 'projects.insertProject',
     validate: new SimpleSchema({
         name: { type: String },
-        isFavourite: { type: Boolean },
+        key: { type: String },
+        isFavourite: { type: Boolean, optional:true, defaultValue:false },
         userId: { type: String, regEx: SimpleSchema.RegEx.Id, optional: true }
     }).validator(),
-    run({name, isFavourite, userId}) {
+    run({name, key, isFavourite, userId}) {
         var project = {
             name,
             userId,
@@ -33,7 +34,7 @@ export const insertProject = new ValidatedMethod({
             createdAt: new Date(),
             updatedAt: new Date(),
             theme: DEFAULT_THEME,
-            key: name.substr(0, 3).toUpperCase()
+            key: key || name.substr(0, 3).toUpperCase()
         };
         validateProject(this, project, [checkIfProjectKeyIsUnique]);
         return Projects.insert(project);
