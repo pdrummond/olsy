@@ -72,7 +72,7 @@ export default class ProjectLister extends React.Component{
                             {this.renderCommonMenuItems(project)}
                         </IconMenu>
                     }
-                    primaryText={project.name}
+                    primaryText={project.key + ": " + project.name}
                     leftIcon={<ActionGrade color={Colors.amber700}/>}
                     onTouchTap={this.handleToggle}
                     />
@@ -94,7 +94,7 @@ export default class ProjectLister extends React.Component{
         return this.props.projects.map(function(project) {
             return <ListItem
                 key={project._id}
-                primaryText={project.name}
+                primaryText={project.key + ": " + project.name}
                 leftIcon={project.isFavourite ? <ActionGrade color={Colors.amber700}/> : <ActionAssignmentLate/>}
                 rightIconButton={
                     <IconMenu iconButtonElement={iconButtonElement} onItemTouchTap={this.onItemTouchTapped}>

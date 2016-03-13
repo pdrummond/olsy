@@ -4,6 +4,12 @@ import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { _ } from 'meteor/underscore';
 
 import { Projects } from './projects.js';
+import {
+    validateProject,
+    checkIfUserCanEdit,
+    checkIfProjectKeyIsUnique,
+    checkIfLastPublicProject
+} from './validators';
 
 const PROJECT_ID_ONLY = new SimpleSchema({
     projectId: { type: String },
@@ -19,7 +25,6 @@ export const insertProject = new ValidatedMethod({
         userId: { type: String, regEx: SimpleSchema.RegEx.Id, optional: true }
     }).validator(),
     run({name, isFavourite, userId}) {
-
         var project = {
             name,
             userId,
@@ -30,7 +35,7 @@ export const insertProject = new ValidatedMethod({
             theme: DEFAULT_THEME,
             key: name.substr(0, 3).toUpperCase()
         };
-        console.log("Adding project: " + JSON.stringify(project, null, 2));
+        validateProject(this, project, [checkIfProjectKeyIsUnique]);
         return Projects.insert(project);
     }
 });
@@ -42,21 +47,10 @@ export const updateIsFavourite = new ValidatedMethod({
         isFavourite: { type: Boolean }
     }).validator(),
     run({projectId, isFavourite }) {
-        console.log("> projects.updateIsFavourite");
-        const project = Projects.findOne(projectId);
-
-        if (!project.editableBy(this.userId)) {
-            throw new Meteor.Error('projects.updateIsFavourite.accessDenied',
-            'You don\'t have permission to edit this project.');
-        }
-
-        // XXX the security check above is not atomic, so in theory a race condition could
-        // result in exposing private data
-
+        validateProject(this, projectId, [checkIfUserCanEdit]);
         var result = Projects.update(projectId, {
             $set: { isFavourite, updatedAt: new Date() },
         });
-        console.log("project.updateIsFavourite: " + result);
     }
 });
 
@@ -67,16 +61,7 @@ export const updateName = new ValidatedMethod({
         newName: { type: String },
     }).validator(),
     run({ projectId, newName }) {
-        const project = Projects.findOne(projectId);
-
-        if (!project.editableBy(this.userId)) {
-            throw new Meteor.Error('projects.updateName.accessDenied',
-            'You don\'t have permission to edit this project.');
-        }
-
-        // XXX the security check above is not atomic, so in theory a race condition could
-        // result in exposing private data
-
+        const project = validateProject(this, projectId, [checkIfUserCanEdit]);
         Projects.update(projectId, {
             $set: { name: newName },
         });
@@ -84,24 +69,10 @@ export const updateName = new ValidatedMethod({
 });
 
 export const removeProject = new ValidatedMethod({
-    name: 'projects.remove',
+    name: 'projects.removeProject',
     validate: PROJECT_ID_ONLY,
     run({ projectId }) {
-        const project = Projects.findOne(projectId);
-
-        if (!project.editableBy(this.userId)) {
-            throw new Meteor.Error('projects.remove.accessDenied',
-            'You don\'t have permission to remove this project.');
-        }
-
-        // XXX the security check above is not atomic, so in theory a race condition could
-        // result in exposing private data
-
-        if (project.isLastPublicProject()) {
-            throw new Meteor.Error('projects.remove.lastPublicProject',
-            'Cannot delete the last public project.');
-        }
-
+        const project = validateProject(this, projectId, [checkIfUserCanEdit, checkIfLastPublicProject]);
         Projects.remove(projectId);
     },
 });

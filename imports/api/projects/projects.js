@@ -61,7 +61,7 @@ Projects.helpers({
         return !this.isPrivate() && publicProjectCount === 1;
     },
 
-    editableBy(userId) {
+    editableBy(userId) {        
         if (!this.userId) {
             return true;
         }
