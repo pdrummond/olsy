@@ -118,6 +118,7 @@ export default class ProjectPage extends React.Component {
     }
 
     componentDidMount() {
+        this.updateDimensions();
         window.addEventListener("resize", this.updateDimensions);
     }
 

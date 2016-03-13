@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
 import Divider from 'material-ui/lib/divider';
@@ -61,8 +60,9 @@ export default class ProjectLister extends React.Component{
         var self = this;
         return this.props.projects.map(function(project) {
             if(project.isFavourite) {
-                return <ListItem className="favourite-item" data-id={project._id} data-name={project.name} data-order={project.order}
+                return <ListItem
                     key={project._id}
+                    className="favourite-item"
                     rightIconButton={
                         <IconMenu
                             iconButtonElement={iconButtonElement}
@@ -72,7 +72,7 @@ export default class ProjectLister extends React.Component{
                             {this.renderCommonMenuItems(project)}
                         </IconMenu>
                     }
-                    primaryText={project.name + "(" + project.order + ")"}
+                    primaryText={project.name}
                     leftIcon={<ActionGrade color={Colors.amber700}/>}
                     onTouchTap={this.handleToggle}
                     />

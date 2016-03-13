@@ -7,6 +7,6 @@ Meteor.publish('projects.public', function projectsPublic() {
         userId: { $exists: false },
     }, {
         fields: Projects.publicFields,
-        sort: {order:1, title:1}
+        sort: {updatedAt: -1, title:1}
     });
 });

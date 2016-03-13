@@ -12,8 +12,8 @@ export default createContainer(() => {
         projects: Projects.find({
             $or: [
                 { userId: { $exists: false } },
-                { userId: Meteor.userId() },
+                { userId: Meteor.userId() }
             ]
-        }, {sort: {order: 1, title: 1}}).fetch()
+        }, {sort: {updatedAt: -1, title: 1}}).fetch()
     };
 }, ProjectPage);

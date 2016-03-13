@@ -29,6 +29,7 @@ Projects.schema = new SimpleSchema({
     key: {type: String},
     theme: {type: String, defaultValue: 'blue'},
     createdAt: {type: Date},
+    updatedAt: {type: Date},
     order: {type: Number}
 });
 
@@ -44,6 +45,7 @@ Projects.publicFields = {
     theme: 1,
     userId: 1,
     createdAt: 1,
+    updatedAt: 1,
     order: 1
 };
 

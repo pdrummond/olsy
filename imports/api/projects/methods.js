@@ -26,6 +26,7 @@ export const insertProject = new ValidatedMethod({
             isFavourite,
             order: Projects.find().count(),
             createdAt: new Date(),
+            updatedAt: new Date(),
             theme: DEFAULT_THEME,
             key: name.substr(0, 3).toUpperCase()
         };
@@ -53,7 +54,7 @@ export const updateIsFavourite = new ValidatedMethod({
         // result in exposing private data
 
         var result = Projects.update(projectId, {
-            $set: { isFavourite },
+            $set: { isFavourite, updatedAt: new Date() },
         });
         console.log("project.updateIsFavourite: " + result);
     }

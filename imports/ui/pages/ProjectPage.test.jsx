@@ -36,15 +36,26 @@ describe('ProjectPage', done => {
      assert(false);
   });
 
-  it("should un-dock sidebar and slide it out when the screen is small size") {
+  it("should un-dock sidebar and slide it out when the screen is resized to a smaller size") {
       //Is this a reasonable test?
       assert(false);
   });
 
-  it("should automaticallty dock sidebar and slide it in when the screen is large size") {
+  it("should automaticallty dock sidebar and slide it in when the screen is resized to a larger size") {
       //Is this a reasonable test?
       assert(false);
   });
+
+  it("should display the sidebar un-docked and hidden on initial render on a small screen") {
+      //Is this a reasonable test?
+      assert(false);
+  });
+
+  it("should display the sidebar docked and visible on initial render on a large screen") {
+      //Is this a reasonable test?
+      assert(false);
+  });
+
 
   it("should show a confirmation dialog when delete is selected") {
         //Is this a reasonable test?
