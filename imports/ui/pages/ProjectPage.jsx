@@ -14,9 +14,11 @@ import MoreVertIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
 import Avatar from 'material-ui/lib/avatar';
 
 import { Projects } from '../../api/projects/projects.js';
-import ProjectLister from '../components/ProjectLister.jsx';
-import NewProjectDialog from '../components/NewProjectDialog.jsx';
-import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog.jsx';
+import ProjectLister from '../components/ProjectLister';
+import ProjectPlanner from '../components/ProjectPlanner';
+import NewProjectDialog from '../components/NewProjectDialog';
+import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog';
+import MessageHistory from '../components/MessageHistory'
 import { displayError } from '../helpers/errors.js';
 
 import {
@@ -33,6 +35,7 @@ export default class ProjectPage extends React.Component {
         super(props);
         this.state = {
             openLeftSidebar: false,
+            openRightSidebar: true,
             openNewProjectDialog: false,
             openConfirmProjectDeleteDialog: false
         };
@@ -61,11 +64,11 @@ export default class ProjectPage extends React.Component {
                     onDeleteSelected={this.deleteProject}/>
                 <LeftNav className="left-nav"
                     width={400}
-                    docked={this.state.width > AUTO_DOCK_WIDTH}
-                    open={this.state.width > AUTO_DOCK_WIDTH ? true : this.state.openLeftSidebar}
+                    docked={false}
+                    open={this.state.openLeftSidebar}
                     onRequestChange={open => this.setState({openLeftSidebar:open})}>
                     <AppBar
-                        title="Home"
+                        title="OLS: OpenLoops"
                         iconElementRight={<FlatButton onTouchTap={this.onNewProjectSelected} label="New Project" primary={true} />}
                         style={{backgroundColor: Colors.red700}}
                         onLeftIconButtonTouchTap={this.handleToggleLeftSidebar}/>
@@ -77,8 +80,21 @@ export default class ProjectPage extends React.Component {
                         onUpdateFavouritesOrder={this.onUpdateFavouritesOrder}
                         />
                 </LeftNav>
+                <LeftNav className="right-nav"
+                    openRight={true}
+                    width={600}
+                    docked={true}
+                    open={this.state.openRightSidebar}
+                    onRequestChange={open => this.setState({openLeftSidebar:open})}>
+                    <AppBar
+                        title="Project Planner"
+                        showMenuIconButton={false}
+                        iconElementRight={<FlatButton label="Create" primary={true} />}
+                        style={{backgroundColor: Colors.red700}} />
+                    <ProjectPlanner/>
+                </LeftNav>
                 <AppBar
-                    title="Home"
+                    title="OLS: OpenLoops"
                     onLeftIconButtonTouchTap={this.handleToggleLeftSidebar}
                     style={{backgroundColor: Colors.red700}}
                     iconElementRight={
@@ -94,8 +110,8 @@ export default class ProjectPage extends React.Component {
                         </IconMenu>
                     }
                     />
-                <div className="app-container" style={{paddingLeft: this.state.width > AUTO_DOCK_WIDTH ? '400px' : '0px'}}>
-                    {this.props.children}
+                <div className="app-container">
+                    <MessageHistory/>
                 </div>
             </div>
         );

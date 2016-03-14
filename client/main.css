@@ -2,10 +2,77 @@ html,body {
     font-family: 'Roboto', sans-serif;
     margin:0;
     padding:0;
+    height:100%;
 }
 
 .app-container {
-    background-color:blue;
+    height:calc(100% - 64px);
+    width: calc(100% - 600px);
+}
+
+.app {
     height:100%;
+}
+
+.project-page {
+    height:100%;
+}
+
+.message-history {
     width:100%;
+    height:100%;
+}
+
+.message-list {
+    height:calc(100% - 340px);
+    padding:50px;
+    overflow-y: auto;
+}
+
+.message-item {
+    margin-bottom: 20px;
+}
+
+.message-box {
+    position: fixed;
+    width: calc(100% - 600px);
+    bottom: 0px;
+    padding: 0px;
+    border-top: 2px solid gray;
+}
+
+.label {
+    background-color: #47AAC1;
+    color: white;
+    font-weight: bold;
+    padding: 3px;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    top: -1px;
+}
+
+.complete-label {
+    background-color: #006064;
+    color: white;
+    font-weight: bold;
+    padding: 3px;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-right: 10px;
+    position: relative;
+    top: -1px;
+}
+
+.milestone-complete-label {
+    background-color: lightgray;
+    color: black;
+    font-weight: bold;
+    padding: 3px;
+    font-size: 12px;
+    border-radius: 4px;
+    margin-left: 10px;
+    position: relative;
+    top: -1px;
 }
