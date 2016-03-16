@@ -61,7 +61,7 @@ export default class ProjectPage extends React.Component {
                 <ConfirmProjectDeleteDialog
                     open={this.state.openConfirmProjectDeleteDialog}
                     onCancelSelected={() => { this.setState({openConfirmProjectDeleteDialog: false})}}
-                    onDeleteSelected={this.deleteProject}/>
+                    onOkSelected={this.deleteProject}/>
                 <LeftNav className="left-nav"
                     width={400}
                     docked={false}
