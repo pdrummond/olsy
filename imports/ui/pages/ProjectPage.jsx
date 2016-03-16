@@ -12,13 +12,15 @@ import SvgIcon from 'material-ui/lib/svg-icon';
 import Colors from 'material-ui/lib/styles/colors';
 import MoreVertIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
 import Avatar from 'material-ui/lib/avatar';
+import Divider from 'material-ui/lib/divider';
 
 import { Projects } from '../../api/projects/projects.js';
 import ProjectLister from '../components/ProjectLister';
 import ProjectPlanner from '../components/ProjectPlanner';
 import NewProjectDialog from '../components/NewProjectDialog';
 import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog';
-import MessageHistory from '../components/MessageHistory'
+import MessageHistory from '../components/MessageHistory';
+import MessageBox from '../components/MessageBox';
 import { displayError } from '../helpers/errors.js';
 
 import {
@@ -35,11 +37,14 @@ export default class ProjectPage extends React.Component {
         super(props);
         this.state = {
             openLeftSidebar: false,
+            dockLeftSidebar: true,
             openRightSidebar: true,
+            dockRightSidebar: true,
             openNewProjectDialog: false,
             openConfirmProjectDeleteDialog: false
         };
         this.handleToggleLeftSidebar = this.handleToggleLeftSidebar.bind(this);
+        this.handleToggleRightSidebar = this.handleToggleRightSidebar.bind(this);
         this.onRemoveProjectSelected = this.onRemoveProjectSelected.bind(this);
         this.onNewProjectSelected = this.onNewProjectSelected.bind(this);
         this.insertProject = this.insertProject.bind(this);
@@ -49,6 +54,10 @@ export default class ProjectPage extends React.Component {
 
     handleToggleLeftSidebar() {
         this.setState({openLeftSidebar: !this.state.openLeftSidebar});
+    }
+
+    handleToggleRightSidebar() {
+        this.setState({openRightSidebar: !this.state.openRightSidebar});
     }
 
     render() {
@@ -83,14 +92,14 @@ export default class ProjectPage extends React.Component {
                 <LeftNav className="right-nav"
                     openRight={true}
                     width={600}
-                    docked={true}
+                    docked={this.state.windowWidth < AUTO_DOCK_WIDTH ? false : this.state.dockRightSidebar}
                     open={this.state.openRightSidebar}
-                    onRequestChange={open => this.setState({openLeftSidebar:open})}>
+                    onRequestChange={open => this.setState({openRightSidebar:open})}>
                     <AppBar
                         title="Project Planner"
-                        showMenuIconButton={false}
                         iconElementRight={<FlatButton label="Create" primary={true} />}
-                        style={{backgroundColor: Colors.red700}} />
+                        style={{backgroundColor: Colors.red700}}
+                        onLeftIconButtonTouchTap={this.handleToggleRightSidebar} />
                     <ProjectPlanner/>
                 </LeftNav>
                 <AppBar
@@ -105,13 +114,16 @@ export default class ProjectPage extends React.Component {
                                 </IconButton>
                             }
                             >
-                            <MenuItem primaryText="Help" index={1} />
-                            <MenuItem primaryText="Sign out" index={2} />
+                            <MenuItem primaryText="Toggle Right View" index={1} onTouchTap={this.handleToggleRightSidebar}/>
+                            <Divider/>
+                            <MenuItem primaryText="Help" index={2} />
+                            <MenuItem primaryText="Sign out" index={3} />
                         </IconMenu>
                     }
                     />
-                <div className="app-container">
+                <div className="app-container" style={{width:this.state.windowWidth >= AUTO_DOCK_WIDTH && this.state.openRightSidebar?'calc(100% - 600px)':'100%'}}>
                     <MessageHistory/>
+                    <MessageBox fullWidth={this.state.windowWidth < AUTO_DOCK_WIDTH || !this.state.openRightSidebar}/>
                 </div>
             </div>
         );
@@ -167,7 +179,7 @@ export default class ProjectPage extends React.Component {
         body = d.getElementsByTagName('body')[0],
         width = w.innerWidth || documentElement.clientWidth || body.clientWidth,
         height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight;
-        this.setState({width:width});
+        this.setState({windowWidth:width});
     }
 }
 

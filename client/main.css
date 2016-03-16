@@ -7,7 +7,6 @@ html,body {
 
 .app-container {
     height:calc(100% - 64px);
-    width: calc(100% - 600px);
 }
 
 .app {
@@ -34,8 +33,7 @@ html,body {
 }
 
 .message-box {
-    position: fixed;
-    width: calc(100% - 600px);
+    position: fixed;    
     bottom: 0px;
     padding: 0px;
     border-top: 2px solid gray;

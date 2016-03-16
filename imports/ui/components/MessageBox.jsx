@@ -17,7 +17,7 @@ export default class MessageBox extends React.Component {
 
     render() {
         return (
-            <div className="message-box">
+            <div className="message-box" style={{width:this.props.fullWidth?'100%':'calc(100% - 600px)'}}>
                 <Paper zDepth={1} style={{padding:'20px', backgroundColor:'whitesmoke'}}>
                     <span style={{display:'flex', alignItems: 'flex-end'}}>
                         <IconMenu
