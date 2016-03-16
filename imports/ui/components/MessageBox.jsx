@@ -1,4 +1,7 @@
 import React from 'react';
+import ProseMirror from 'react-prosemirror';
+import "prosemirror/dist/menu/tooltipmenu";
+
 import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
 import FlatButton from 'material-ui/lib/flat-button';
@@ -13,12 +16,20 @@ import Colors from 'material-ui/lib/styles/colors';
 export default class MessageBox extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            content: "Enter your message here",
+        }
+        this.onContentChange = this.onContentChange.bind(this);
+    }
+
+    onContentChange(content) {
+        this.setState({content})
     }
 
     render() {
         return (
             <div className="message-box" style={{width:this.props.fullWidth?'100%':'calc(100% - 600px)'}}>
-                <Paper zDepth={1} style={{padding:'20px', backgroundColor:'whitesmoke'}}>
+                <Paper zDepth={1} style={{padding:'0px 20px 10px 20px', backgroundColor:'whitesmoke'}}>
                     <span style={{display:'flex', alignItems: 'flex-end'}}>
                         <IconMenu
                             iconButtonElement={<IconButton><DiscussionIcon/></IconButton>} >
@@ -27,16 +38,9 @@ export default class MessageBox extends React.Component {
                             <MenuItem primaryText="Bug"  leftIcon={<BugIcon />}/>
                         </IconMenu>
                         <TextField fullWidth={true} hintText="Optionally enter a subject here" floatingLabelText="Subject" style={{marginRight:'10px'}}/>
-                        </span>
+                    </span>
                     <br/>
-                    <TextField
-                        fullWidth={true}
-                        hintText="Enter your message here"
-                        floatingLabelText="Message Body"
-                        multiLine={true}
-                        rows={1}
-                        rowsMax={20}
-                        />
+                    <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'html', tooltipMenu: {selectedBlockMenu:true}}} />
                     <br/>
                     <div style={{textAlign:'right', position:'relative', top:'5px'}}>
                         <FlatButton label="Cancel" />
