@@ -2,6 +2,13 @@ import React from 'react';
 import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
 import FlatButton from 'material-ui/lib/flat-button';
+import IconButton from 'material-ui/lib/icon-button';
+import IconMenu from 'material-ui/lib/menus/icon-menu';
+import MenuItem from 'material-ui/lib/menus/menu-item';
+import DiscussionIcon from 'material-ui/lib/svg-icons/communication/chat';
+import BugIcon from 'material-ui/lib/svg-icons/action/bug-report';
+import TaskIcon from 'material-ui/lib/svg-icons/alert/error';
+import Colors from 'material-ui/lib/styles/colors';
 
 export default class MessageBox extends React.Component {
     constructor(props) {
@@ -12,10 +19,15 @@ export default class MessageBox extends React.Component {
         return (
             <div className="message-box">
                 <Paper zDepth={1} style={{padding:'20px', backgroundColor:'whitesmoke'}}>
-                    <div style={{display:'flex'}}>
+                    <span style={{display:'flex', alignItems: 'flex-end'}}>
+                        <IconMenu
+                            iconButtonElement={<IconButton><DiscussionIcon/></IconButton>} >
+                            <MenuItem primaryText="Discussion" leftIcon={<DiscussionIcon/>}/>
+                            <MenuItem primaryText="Task" leftIcon={<TaskIcon />}/>
+                            <MenuItem primaryText="Bug"  leftIcon={<BugIcon />}/>
+                        </IconMenu>
                         <TextField fullWidth={true} hintText="Optionally enter a subject here" floatingLabelText="Subject" style={{marginRight:'10px'}}/>
-                        <TextField fullWidth={true} hintText="A list of members this message is aimed at" floatingLabelText="To"/>
-                    </div>
+                        </span>
                     <br/>
                     <TextField
                         fullWidth={true}
