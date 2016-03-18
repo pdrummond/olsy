@@ -1,6 +1,7 @@
 import React from 'react';
 import ProseMirror from 'react-prosemirror';
-import "prosemirror/dist/menu/tooltipmenu";
+import 'prosemirror/dist/menu/tooltipmenu';
+import 'prosemirror/dist/markdown'
 
 import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
@@ -17,9 +18,10 @@ export default class MessageBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            content: "Enter your message here",
+            content: "",
         }
         this.onContentChange = this.onContentChange.bind(this);
+        this.onSendMessageSelected = this.onSendMessageSelected.bind(this);
     }
 
     onContentChange(content) {
@@ -40,14 +42,19 @@ export default class MessageBox extends React.Component {
                         <TextField fullWidth={true} hintText="Optionally enter a subject here" floatingLabelText="Subject" style={{marginRight:'10px'}}/>
                     </span>
                     <br/>
-                    <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'html', tooltipMenu: {selectedBlockMenu:true}}} />
+                    <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'markdown', tooltipMenu: {selectedBlockMenu:true}}} />
                     <br/>
                     <div style={{textAlign:'right', position:'relative', top:'5px'}}>
-                        <FlatButton label="Cancel" />
-                        <FlatButton label="Send Message" primary={true} />
+                        <FlatButton label="Cancel" onClick={this.props.onCancelMessageSelected}/>
+                        <FlatButton label="Send Message" onClick={this.onSendMessageSelected} primary={true} />
                     </div>
                 </Paper>
             </div>
         );
+    }
+
+    onSendMessageSelected() {
+        this.setState({content: ''});
+        this.props.onSendMessageSelected(this.state.content);
     }
 }

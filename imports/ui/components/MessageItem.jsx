@@ -7,8 +7,10 @@ import CardTitle from 'material-ui/lib/card/card-title';
 import FlatButton from 'material-ui/lib/flat-button';
 import CardText from 'material-ui/lib/card/card-text';
 import Toggle from 'material-ui/lib/toggle';
+import Avatar from 'material-ui/lib/avatar';
+import Colors from 'material-ui/lib/styles/colors';
 
-export default class CardExampleControlled extends React.Component {
+export default class MessageItem extends React.Component {
 
   constructor(props) {
     super(props);
@@ -42,12 +44,12 @@ export default class CardExampleControlled extends React.Component {
       <Card className="message-item" expanded={this.state.expanded} onExpandChange={this.handleExpandChange}>
         <CardHeader
           title={this.props.message.username}
-          subtitle={this.props.message.subject}
-          avatar="http://lorempixel.com/100/100/nature/"
+          subtitle='No Subject'
+          avatar={<Avatar>{this.props.message.username.substr(0, 2)}</Avatar>}
           actAsExpander={true}
           showExpandableButton={true}
         />
-        <CardText>
+    <CardText style={{padding:'0px 15px 15px 15px', fontSize:'16px', fontWeight: '300'}}>
             {this.props.message.content}
         </CardText>
         <CardMedia

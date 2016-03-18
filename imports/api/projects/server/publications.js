@@ -10,3 +10,8 @@ Meteor.publish('projects.public', function projectsPublic() {
         sort: {updatedAt: -1, title:1}
     });
 });
+
+Meteor.publish('projects.current', function projectsCurrent(projectId) {
+    console.log("PUBLISHING projects.current:" + projectId);
+    return Projects.find({_id: projectId});
+});

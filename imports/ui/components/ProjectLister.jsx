@@ -74,7 +74,7 @@ export default class ProjectLister extends React.Component{
                     }
                     primaryText={project.key + ": " + project.name}
                     leftIcon={<ActionGrade color={Colors.amber700}/>}
-                    onTouchTap={this.handleToggle}
+                    onTouchTap={() => { this.props.onProjectSelected(project); }}
                     />
             }
         }.bind(this));
@@ -103,7 +103,7 @@ export default class ProjectLister extends React.Component{
                         {this.renderCommonMenuItems(project)}
                     </IconMenu>
                 }
-                onTouchTap={this.handleToggle}
+                onTouchTap={() => { this.props.onProjectSelected(project); }}
                 />
         }.bind(this));
     }

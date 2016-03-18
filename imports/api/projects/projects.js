@@ -1,6 +1,5 @@
 import { Mongo } from 'meteor/mongo';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
-//import { Items } from '../items/items.js';
 
 class ProjectsCollection extends Mongo.Collection {
     insert(project, callback) {
@@ -61,7 +60,7 @@ Projects.helpers({
         return !this.isPrivate() && publicProjectCount === 1;
     },
 
-    editableBy(userId) {        
+    editableBy(userId) {
         if (!this.userId) {
             return true;
         }
