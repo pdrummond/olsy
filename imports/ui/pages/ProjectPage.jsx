@@ -145,7 +145,7 @@ export default class ProjectPage extends React.Component {
                     />
                 <div className="app-container" style={{width:this.state.windowWidth >= AUTO_DOCK_WIDTH && this.state.openRightSidebar?'calc(100% - 600px)':'100%'}}>
                     {this.renderSignInBanner()}
-                    <MessageHistory currentProject={this.state.currentProject} style={{height:(this.state.openMessageBox?'calc(100% - 340px)':'100%') }}/>
+                    <MessageHistory currentProject={this.state.currentProject} style={{height:(this.state.openMessageBox?'calc(100% - 340px)':'calc(100% - 65px)') }}/>
                     {this.renderMessageBox()}
                 </div>
             </div>
