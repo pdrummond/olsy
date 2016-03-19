@@ -3,18 +3,16 @@ import { ValidatedMethod } from 'meteor/mdg:validated-method';
 import { SimpleSchema } from 'meteor/aldeed:simple-schema';
 import { Streamy} from 'meteor/yuukan:streamy';
 import { _ } from 'meteor/underscore';
-
+import { Subjects } from '../subjects/subjects.js';
+import { insertSubject } from '../subjects/subject-methods.js';
 import { ServerMessages } from './server-messages.js';
-/*import {
+import { displayError } from '../../ui/helpers/errors.js';
+import {
 validateMessage,
-checkIfUserCanEdit
-} from './validators';
+checkIfProjectIdIsValid
+} from './server-message-validators';
 
-const MESSAGE_ID_ONLY = new SimpleSchema({
-messageId: { type: String },
-}).validator();*/
-
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 30;
 
 export const loadMessages = new ValidatedMethod({
     name: 'messages.loadMessages',
@@ -97,9 +95,11 @@ export const insertMessage = new ValidatedMethod({
     validate: new SimpleSchema({
         content: { type: String },
         username: { type: String},
-        projectId: { type: String, regEx: SimpleSchema.RegEx.Id}
+        projectId: { type: String, regEx: SimpleSchema.RegEx.Id},
+        subjectId: { type: String, regEx: SimpleSchema.RegEx.Id, optional:true},
+        subjectTitle: { type: String, optional:true}
     }).validator(),
-    run({content, username, projectId}) {
+    run({content, username, projectId, subjectId, subjectTitle}) {
         var message = {
             content,
             username,
@@ -108,8 +108,36 @@ export const insertMessage = new ValidatedMethod({
             updatedAt: new Date(),
             seq: ServerMessages.find({projectId}).count()
         };
-        //validateMessage(this, message, [checkIfProjectIdIsValid]);
-        console.log("inserting message: " + JSON.stringify(message, null, 2));
+        validateMessage(this, message, [checkIfProjectIdIsValid]);
+
+        if(subjectId) {
+            console.log('-- existing subject id detected: ' + subjectId);
+            var subject = Subjects.findOne(subjectId);
+            if(!subject) {
+                throw new Meteor.Error("messages.insertMessage.bad-subject", "subject id specified for message cannot be found: " + subjectId);
+            }
+            message.subjectId = subject._id;
+            if(message.subjectId == null || message.subjectId.length == 0) {
+                throw new Meteor.Error("messages.insertMessage.bad-subject", "Unexpected error associating message with subject - subjectId is bad");
+            }
+            console.log('-- successfully associated message with subject ' + message.subjectId);
+        } else if(subjectTitle != null) {
+            subjectTitle = subjectTitle.trim();
+            if(subjectTitle.length > 0) {
+                console.log('-- subject title detected: ' + subjectTitle);
+                message.subjectId = insertSubject.call({
+                    title: subjectTitle,
+                    type: Subjects.Type.SUBJECT_TYPE_DISCUSSION,
+                    username,
+                    projectId
+                });
+                if(message.subjectId == null || message.subjectId.length == 0) {
+                    throw new Meteor.Error("messages.insertMessage.bad-subject", "Unexpected error creating subject - subjectTitle was provided, but subjectId is null");
+                }
+                console.log('-- successfully added subject ' + message.subjectId);
+            }
+        }
+        console.log("-- inserting message: " + JSON.stringify(message, null, 2));
         var messageId = ServerMessages.insert(message);
 
         /*var userIds = Members.find({projectId: message.projectId}).map(function (member) {

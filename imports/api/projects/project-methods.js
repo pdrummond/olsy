@@ -9,7 +9,7 @@ import {
     checkIfUserCanEdit,
     checkIfProjectKeyIsUnique,
     checkIfLastPublicProject
-} from './validators';
+} from './project-validators';
 
 const PROJECT_ID_ONLY = new SimpleSchema({
     projectId: { type: String },

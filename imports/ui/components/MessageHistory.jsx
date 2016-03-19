@@ -6,7 +6,7 @@ import { Streamy} from 'meteor/yuukan:streamy';
 
 import {
     loadMessages
-} from '../../api/server-messages/methods.js';
+} from '../../api/server-messages/server-message-methods.js';
 
 export default class MessageHistory extends React.Component {
     constructor(props) {

@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 import { Projects } from '../../api/projects/projects.js';
-import { Items } from '../../api/items/items.js';
+
 
 import {
     insertProject
-} from '../../api/projects/methods.js';
+} from '../../api/projects/project-methods.js';
 
 // if the database is empty on server start, create some sample data.
 Meteor.startup(() => {

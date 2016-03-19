@@ -19,7 +19,7 @@ import ContentAdd from 'material-ui/lib/svg-icons/content/add';
 
 import { Projects } from '../../api/projects/projects.js';
 import ProjectLister from '../components/ProjectLister';
-import ProjectPlanner from '../components/ProjectPlanner';
+import SubjectLister from '../components/SubjectLister';
 import NewProjectDialog from '../components/NewProjectDialog';
 import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog';
 import MessageHistory from '../components/MessageHistory';
@@ -31,11 +31,11 @@ import {
     removeProject,
     updateIsFavourite,
     updateProjectOrder
-} from '../../api/projects/methods.js';
+} from '../../api/projects/project-methods.js';
 
 import {
     insertMessage
-} from '../../api/server-messages/methods.js';
+} from '../../api/server-messages/server-message-methods.js';
 
 const AUTO_DOCK_WIDTH = 1200;
 
@@ -46,10 +46,10 @@ export default class ProjectPage extends React.Component {
             currentProject: {
                 name: ''
             },
-            openMessageBox: false,
+            openMessageBox: true,
             openLeftSidebar: false,
             dockLeftSidebar: true,
-            openRightSidebar: false,
+            openRightSidebar: true,
             dockRightSidebar: true,
             openNewProjectDialog: false,
             openConfirmProjectDeleteDialog: false
@@ -118,11 +118,11 @@ export default class ProjectPage extends React.Component {
                     open={this.state.openRightSidebar}
                     onRequestChange={open => this.setState({openRightSidebar:open})}>
                     <AppBar
-                        title="Project Planner"
+                        title="Subjects"
                         iconElementRight={<FlatButton label="Create" primary={true} />}
                         style={{backgroundColor: Colors.red700}}
                         onLeftIconButtonTouchTap={this.handleToggleRightSidebar} />
-                    <ProjectPlanner/>
+                    <SubjectLister subjects={this.props.subjects}/>
                 </LeftNav>
                 <AppBar
                     title={this.state.currentProject.name}
@@ -156,7 +156,10 @@ export default class ProjectPage extends React.Component {
         if(this.props.user) {
             if(this.state.openMessageBox) {
                 return (
-                    <MessageBox onCancelMessageSelected={() => {this.setState({openMessageBox: false})}}
+                    <MessageBox
+                        projectKey={this.state.currentProject.key}
+                        subjects={this.props.subjects}
+                        onCancelMessageSelected={() => {this.setState({openMessageBox: false})}}
                         onSendMessageSelected={this.handleSendMessageSelected}
                         fullWidth={this.state.windowWidth < AUTO_DOCK_WIDTH || !this.state.openRightSidebar}/>
                 );
@@ -187,10 +190,12 @@ export default class ProjectPage extends React.Component {
         browserHistory.push(`/project/${project._id}`);
     }
 
-    handleSendMessageSelected(content) {
+    handleSendMessageSelected(content, subjectId, subjectTitle) {
         console.log("sending message boom: " + this.state.currentProject._id);
         insertMessage.call({
             content: content,
+            subjectId: subjectId,
+            subjectTitle: subjectTitle,
             username: 'pdrummond', //TODO
             projectId: this.state.currentProject._id
         }, displayError);

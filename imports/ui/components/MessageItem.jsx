@@ -10,6 +10,11 @@ import Toggle from 'material-ui/lib/toggle';
 import Avatar from 'material-ui/lib/avatar';
 import Colors from 'material-ui/lib/styles/colors';
 import {parseMarkdown} from 'meteor/themeteorchef:commonmark';
+import BugIcon from 'material-ui/lib/svg-icons/action/bug-report';
+import TaskIcon from 'material-ui/lib/svg-icons/alert/error';
+import DiscussionIcon from 'material-ui/lib/svg-icons/communication/chat';
+
+import { Subjects } from '../../api/subjects/subjects.js';
 
 export default class MessageItem extends React.Component {
 
@@ -45,7 +50,7 @@ export default class MessageItem extends React.Component {
             <Card className="message-item" expanded={this.state.expanded} onExpandChange={this.handleExpandChange}>
                 <CardHeader
                     title={this.props.message.username}
-                    subtitle='No Subject'
+                    subtitle={this.renderSubject()}
                     avatar={<Avatar>{this.props.message.username.substr(0, 2)}</Avatar>}
                     actAsExpander={true}
                     showExpandableButton={true}
@@ -60,6 +65,21 @@ export default class MessageItem extends React.Component {
                 </CardMedia>
             </Card>
         );
+    }
+
+    renderSubject() {
+        if(this.props.message.subjectId) {
+            var subject = Subjects.findOne(this.props.message.subjectId);
+            return (
+                <span style={{display:"flex", alignItems: 'center'}}>
+                    <DiscussionIcon color={Colors.cyan900} style={{width:'20px'}}/>
+                    <span style={{marginLeft: '5px'}}> {subject.title} </span>
+                    <span style={{marginLeft: '5px', color:'lightgray'}}> OLS-6</span>
+                </span>
+            );
+        } else {
+            return <span>No Subject</span>;
+        }
     }
 
     getHtmlContent(content) {
