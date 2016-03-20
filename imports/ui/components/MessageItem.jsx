@@ -52,33 +52,34 @@ export default class MessageItem extends React.Component {
                     title={this.props.message.username}
                     subtitle={this.renderSubject()}
                     avatar={<Avatar>{this.props.message.username.substr(0, 2)}</Avatar>}
-                    actAsExpander={true}
-                    showExpandableButton={true}
                     />
                 <CardText style={{padding:'0px 15px 15px 15px', fontSize:'16px', fontWeight: '300'}}>
                     <div className="markdown-content" dangerouslySetInnerHTML={ this.getHtmlContent( this.props.message.content ) } />
                 </CardText>
-                <CardMedia
-                    expandable={true}
-                    overlay={<CardTitle title="My Photo" subtitle="I took this while on holiday" />}>
-                    <img src="http://lorempixel.com/600/337/nature/" />
-                </CardMedia>
             </Card>
         );
     }
 
     renderSubject() {
+        var self = this; //Why do I need self here?  I should be able to use 'this' in an arrow function right?
         if(this.props.message.subjectId) {
             var subject = Subjects.findOne(this.props.message.subjectId);
             return (
-                <span style={{display:"flex", alignItems: 'center'}}>
-                    <DiscussionIcon color={Colors.cyan900} style={{width:'20px'}}/>
+                <span style={{cursor:'pointer', display:"flex", alignItems: 'center'}} onClick={() => { self.props.onSubjectSelected(subject)}}>
+                    {this.renderSubjectIcon(subject)}
                     <span style={{marginLeft: '5px'}}> {subject.title} </span>
-                    <span style={{marginLeft: '5px', color:'lightgray'}}> OLS-6</span>
+                    <span style={{marginLeft: '5px', color:'lightgray'}}> {this.props.projectKey}-{subject.seq}</span>
                 </span>
             );
         } else {
             return <span>No Subject</span>;
+        }
+    }
+
+    renderSubjectIcon(subject) {
+        switch(subject.type) {
+            case Subjects.Type.SUBJECT_TYPE_DISCUSSION: return <DiscussionIcon color={Colors.cyan900} style={{width:'20px'}}/>;
+            case Subjects.Type.SUBJECT_TYPE_TASK: return <TaskIcon color={Colors.green700} style={{width:'20px'}}/>;
         }
     }
 

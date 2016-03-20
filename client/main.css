@@ -149,3 +149,13 @@ html,body {
     color: #aaa;
     font-style: italic;
 }
+
+.header-label {
+    color:gray;
+    font-weight:300;
+    text-transform: uppercase;
+}
+
+.subject-card {
+    margin-bottom:5px;
+}

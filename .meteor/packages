@@ -24,7 +24,6 @@ check
 mdg:validated-method
 aldeed:simple-schema
 avital:mocha
-accounts-password
 tap:i18n
 react-meteor-data
 static-html
@@ -33,3 +32,5 @@ practicalmeteor:chai
 practicalmeteor:sinon
 yuukan:streamy
 themeteorchef:commonmark
+accounts-base
+accounts-password

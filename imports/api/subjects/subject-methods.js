@@ -20,7 +20,7 @@ export const insertSubject = new ValidatedMethod({
             type,
             username,
             projectId,
-            seq: Subjects.find().count(),
+            seq: Subjects.find().count()+1,
             createdAt: now,
             updatedAt: now
         };

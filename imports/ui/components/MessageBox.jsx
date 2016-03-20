@@ -4,12 +4,15 @@ import ProseMirror from 'react-prosemirror';
 import 'prosemirror/dist/menu/tooltipmenu';
 import 'prosemirror/dist/markdown'
 
+import MoreVertIcon from 'material-ui/lib/svg-icons/navigation/more-vert';
+import Divider from 'material-ui/lib/divider';
 import Paper from 'material-ui/lib/paper';
 import TextField from 'material-ui/lib/text-field';
 import FlatButton from 'material-ui/lib/flat-button';
 import IconButton from 'material-ui/lib/icon-button';
 import IconMenu from 'material-ui/lib/menus/icon-menu';
 import MenuItem from 'material-ui/lib/menus/menu-item';
+import CloseIcon from 'material-ui/lib/svg-icons/navigation/close';
 import DiscussionIcon from 'material-ui/lib/svg-icons/communication/chat';
 import BugIcon from 'material-ui/lib/svg-icons/action/bug-report';
 import TaskIcon from 'material-ui/lib/svg-icons/alert/error';
@@ -32,17 +35,19 @@ export default class MessageBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            popOverOpen: false,
             subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION,
             subjectTitle: '',
-            subjectSeq: null,
-            subjectId: null,
             content: ""
         }
-        this.handleSubjectSelected = this.handleSubjectSelected.bind(this);
         this.handleClearSubject = this.handleClearSubject.bind(this);
         this.onContentChange = this.onContentChange.bind(this);
         this.onSendMessageSelected = this.onSendMessageSelected.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.selectedSubject) {
+            this.setState({selectedSubject: nextProps.selectedSubject});
+        }
     }
 
     onContentChange(content) {
@@ -50,36 +55,39 @@ export default class MessageBox extends React.Component {
     }
 
     render() {
-        console.log("MessageBox.render()");
         return (
             <div className="message-box" style={{width:this.props.fullWidth?'100%':'calc(100% - 600px)'}}>
                 <Paper zDepth={1} style={{padding:'0px 20px 10px 20px', backgroundColor:'whitesmoke'}}>
                     <span style={{display:'flex', alignItems: 'flex-end'}}>
                         <IconMenu
-                            iconButtonElement={this.renderSubjectType()} >
-                            <MenuItem primaryText="Discussion" leftIcon={<DiscussionIcon/>} onTouchTap={() => { this.setState({subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION}) } }/>
-                            <MenuItem primaryText="Task" leftIcon={<TaskIcon/>} onTouchTap={() => { this.setState({subjectType: Subjects.Type.SUBJECT_TYPE_TASK}) } }/>
+                            iconButtonElement={this.renderSubjectType()}
+                            tabIndex={-1}>
+                            <MenuItem primaryText="Discussion" leftIcon={<DiscussionIcon/>} onTouchTap={() => { this.handleClearSubject({subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION}) } }/>
+                            <MenuItem primaryText="Task" leftIcon={<TaskIcon/>} onTouchTap={() => { this.handleClearSubject({subjectType: Subjects.Type.SUBJECT_TYPE_TASK}) } }/>
                         </IconMenu>
-                        <SubjectField                            
-                            onSubjectSelected={this.handleSubjectSelected}
-                            subjects={this.props.subjects}/>
-                        <FlatButton ref='keyButton'
-                            title="This is a new subject"
-                            label={this.state.subjectId?`${this.props.projectKey}-${this.state.subjectSeq}`:"New"}
-                            onTouchTap={(e) => {this.setState({popOverOpen: !this.state.popoverOpen, popOverAnchorEl:e.currentTarget})}}/>
-                        <Popover
-                            open={this.state.popOverOpen}
-                            anchorEl={this.state.popOverAnchorEl}
+                        <TextField
+                            value={this.state.selectedSubject?this.state.selectedSubject.title: this.state.subjectTitle}
+                            onChange={(e) => {this.handleClearSubject({subjectTitle: e.target.value})}}
+                            floatingLabelText="Subject" hintText="Enter Subject here (optional)" fullWidth={true}/>
+                        <FlatButton
+                            disabled={true}
+                            title={this.state.selectedSubject?"This is the key for the selected subject":"This is a new subject"}
+                            label={this.state.selectedSubject?`${this.props.projectKey}-${this.state.selectedSubject.seq}`:"New"}/>
+                        <IconButton tooltip="Clear Subject" tooltipPosition="top-center" style={{position:'relative', top:'5px'}} onTouchTap={this.handleClearSubject} tabIndex={-1}><CloseIcon/></IconButton>
+                        <IconMenu style={{position:'relative', top:'5px'}} tabIndex={-1}
+                            iconButtonElement={<IconButton><MoreVertIcon /></IconButton>}
                             anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
-                            targetOrigin={{horizontal: 'left', vertical: 'top'}}
-                            onRequestClose={() => { this.setState({popoverOpen: false}); }}>
-                            <div style={styles.popover}>
-                                <RaisedButton primary={true} label="Clear subject" onTouchTap={this.handleClearSubject}/>
-                            </div>
-                        </Popover>
+                            targetOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                            >
+                            <MenuItem primaryText="Clear Subject" />
+                            <MenuItem primaryText="Choose Subject" />
+                        </IconMenu>
+
                     </span>
                     <br/>
-                    <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'markdown', tooltipMenu: {selectedBlockMenu:true}}} />
+                    <div className="markdown-content">
+                        <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'markdown', tooltipMenu: {selectedBlockMenu:true}}} />
+                    </div>
                     <br/>
                     <div style={{textAlign:'right', position:'relative', top:'5px'}}>
                         <FlatButton label="Cancel" onClick={this.props.onCancelMessageSelected}/>
@@ -90,27 +98,29 @@ export default class MessageBox extends React.Component {
         );
     }
 
-    renderSubjectType() {
-        switch(this.state.subjectType) {
-            case Subjects.Type.SUBJECT_TYPE_DISCUSSION:
-                return <IconButton><DiscussionIcon/></IconButton>;
-            break;
-            case Subjects.Type.SUBJECT_TYPE_TASK:
-            return <IconButton><TaskIcon/></IconButton>;
-            break;
-            }
-    }
-
-    handleSubjectSelected(subject) {
-        this.setState({subjectTitle: subject.title, subjectSeq:subject.seq, subjectId: subject._id, subjectType: subject.type});
-    }
-
     onSendMessageSelected() {
-        this.setState({content: '', subjectTitle:''});
-        this.props.onSendMessageSelected(this.state.content, this.state.subjectId, this.state.subjectTitle);
+        var subjectId = null;
+        var subjectTitle = this.state.subjectTitle;
+        var subjectType = this.state.subjectType;
+
+        if(this.state.selectedSubject) {
+            subjectId = this.state.selectedSubject._id;
+            subjectTitle = this.state.selectedSubject.title;
+            subjectType = this.state.selectedSubject.type;
+        }
+        this.setState({content: ''}); //clear down content for next message but keep subject around so it can be re-used.
+        this.props.onSendMessageSelected(this.state.content, subjectId, subjectTitle, subjectType);
     }
 
-    handleClearSubject() {
-        this.setState({popOverOpen:false, subjectTitle: '', subjectSeq: null, subjectId:null, subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION});
+    handleClearSubject(extraState) {
+        this.setState(_.extend({selectedSubject: null, subjectTitle: '', subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION}, extraState));
+    }
+
+    renderSubjectType() {
+        var subjectType = this.state.selectedSubject?this.state.selectedSubject.type:this.state.subjectType;
+        switch(subjectType) {
+            case Subjects.Type.SUBJECT_TYPE_DISCUSSION: return <IconButton><DiscussionIcon color={Colors.cyan900}/></IconButton>;
+            case Subjects.Type.SUBJECT_TYPE_TASK: return <IconButton><TaskIcon color={Colors.green700}/></IconButton>;
+        }
     }
 }

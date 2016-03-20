@@ -20,6 +20,7 @@ import ContentAdd from 'material-ui/lib/svg-icons/content/add';
 import { Projects } from '../../api/projects/projects.js';
 import ProjectLister from '../components/ProjectLister';
 import SubjectLister from '../components/SubjectLister';
+import SubjectDetailer from '../components/SubjectDetailer';
 import NewProjectDialog from '../components/NewProjectDialog';
 import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog';
 import MessageHistory from '../components/MessageHistory';
@@ -63,6 +64,7 @@ export default class ProjectPage extends React.Component {
         this.deleteProject = this.deleteProject.bind(this);
         this.handleSendMessageSelected = this.handleSendMessageSelected.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
+        this.handleMessageSubjectSelected = this.handleMessageSubjectSelected.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -111,18 +113,19 @@ export default class ProjectPage extends React.Component {
                         onUpdateFavouritesOrder={this.onUpdateFavouritesOrder}
                         />
                 </LeftNav>
-                <LeftNav className="right-nav"
+                <LeftNav
+                    className="right-nav"
                     openRight={true}
                     width={600}
                     docked={this.state.windowWidth < AUTO_DOCK_WIDTH ? false : this.state.dockRightSidebar}
                     open={this.state.openRightSidebar}
                     onRequestChange={open => this.setState({openRightSidebar:open})}>
                     <AppBar
-                        title="Subjects"
+                        title={this.renderRightViewTitle()}
                         iconElementRight={<FlatButton label="Create" primary={true} />}
                         style={{backgroundColor: Colors.red700}}
                         onLeftIconButtonTouchTap={this.handleToggleRightSidebar} />
-                    <SubjectLister subjects={this.props.subjects}/>
+                    {this.renderRightView()}
                 </LeftNav>
                 <AppBar
                     title={this.state.currentProject.name}
@@ -145,7 +148,10 @@ export default class ProjectPage extends React.Component {
                     />
                 <div className="app-container" style={{width:this.state.windowWidth >= AUTO_DOCK_WIDTH && this.state.openRightSidebar?'calc(100% - 600px)':'100%'}}>
                     {this.renderSignInBanner()}
-                    <MessageHistory currentProject={this.state.currentProject} style={{height:(this.state.openMessageBox?'calc(100% - 340px)':'calc(100% - 65px)') }}/>
+                    <MessageHistory
+                        onSubjectSelected={this.handleMessageSubjectSelected}
+                        currentProject={this.state.currentProject}
+                        style={{height:(this.state.openMessageBox?'calc(100% - 340px)':'calc(100% - 65px)') }}/>
                     {this.renderMessageBox()}
                 </div>
             </div>
@@ -158,6 +164,7 @@ export default class ProjectPage extends React.Component {
                 return (
                     <MessageBox
                         projectKey={this.state.currentProject.key}
+                        selectedSubject={this.state.selectedSubject}
                         subjects={this.props.subjects}
                         onCancelMessageSelected={() => {this.setState({openMessageBox: false})}}
                         onSendMessageSelected={this.handleSendMessageSelected}
@@ -190,15 +197,21 @@ export default class ProjectPage extends React.Component {
         browserHistory.push(`/project/${project._id}`);
     }
 
-    handleSendMessageSelected(content, subjectId, subjectTitle) {
-        console.log("sending message boom: " + this.state.currentProject._id);
-        insertMessage.call({
+    handleSendMessageSelected(content, subjectId, subjectTitle, subjectType,) {
+        var message = {
             content: content,
             subjectId: subjectId,
+            subjectType: subjectType,
             subjectTitle: subjectTitle,
-            username: 'pdrummond', //TODO
+            username: 'pdrummond',//TODO //this.props.user.username,
             projectId: this.state.currentProject._id
-        }, displayError);
+        };
+        insertMessage.call(message, displayError);
+    }
+
+    handleMessageSubjectSelected(selectedSubject) {
+        console.log("Selected subject: " + selectedSubject.title);
+        this.setState({selectedSubject});
     }
 
     onToggleFavouriteSelected(project) {
@@ -252,6 +265,22 @@ export default class ProjectPage extends React.Component {
         width = w.innerWidth || documentElement.clientWidth || body.clientWidth,
         height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight;
         this.setState({windowWidth:width});
+    }
+
+    renderRightViewTitle() {
+        if(this.props.currentSubject) {
+            return "OLS-666";
+        } else {
+            return "Subjects";
+        }
+    }
+
+    renderRightView() {
+        if(this.props.currentSubject) {
+            return <SubjectDetailer projectKey={this.state.currentProject.key} subject={this.props.currentSubject} subjectMessages={this.props.subjectMessages}/>;
+        } else {
+            return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
+        }
     }
 }
 

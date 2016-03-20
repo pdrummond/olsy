@@ -19,7 +19,7 @@ export default class MessageList extends React.Component {
     renderMessageItems() {
         var key=0;
         return this.props.messages.map(function(message) {
-            return <MessageItem key={key++} message={message}/>;
+            return <MessageItem key={key++} projectKey={this.props.projectKey} message={message} onSubjectSelected={this.props.onSubjectSelected}/>;
         }.bind(this));
     }
 

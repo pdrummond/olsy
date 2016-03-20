@@ -35,7 +35,13 @@ export default class MessageHistory extends React.Component {
     render() {
         return (
             <div className="message-history" style={this.props.style}>
-                <MessageList ref="messageList" messages={this.state.messages} className="message-list"/>
+                <MessageList
+                    ref="messageList"
+                    className="message-list"
+                    messages={this.state.messages}
+                    projectKey={this.state.currentProject.key}
+                    onSubjectSelected={this.props.onSubjectSelected}
+                    />
             </div>
         );
     }

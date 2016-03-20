@@ -12,7 +12,7 @@ export default class SubjectField extends React.Component {
 
     render() {
         return <AutoComplete ref="subject"
-            onUpdateInput={(input) => {this.setState({value: input})}}
+            onUpdateInput={(input) => {this.setState({value: input}); this.props.onSubjectInputChanged(input);}}
             searchText={this.state.value}
             fullWidth={true}
             hintText="Enter a subject here (optional)"

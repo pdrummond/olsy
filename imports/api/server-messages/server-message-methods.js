@@ -97,16 +97,18 @@ export const insertMessage = new ValidatedMethod({
         username: { type: String},
         projectId: { type: String, regEx: SimpleSchema.RegEx.Id},
         subjectId: { type: String, regEx: SimpleSchema.RegEx.Id, optional:true},
-        subjectTitle: { type: String, optional:true}
+        subjectTitle: { type: String, optional:true},
+        subjectType: { type: String, optional:true}
     }).validator(),
-    run({content, username, projectId, subjectId, subjectTitle}) {
+    run({content, username, projectId, subjectId, subjectType, subjectTitle}) {
+        console.log(`> messages.insertMessage()`)
         var message = {
             content,
             username,
             projectId,
             createdAt: new Date(),
             updatedAt: new Date(),
-            seq: ServerMessages.find({projectId}).count()
+            seq: ServerMessages.find({projectId}).count()+1
         };
         validateMessage(this, message, [checkIfProjectIdIsValid]);
 
@@ -127,7 +129,7 @@ export const insertMessage = new ValidatedMethod({
                 console.log('-- subject title detected: ' + subjectTitle);
                 message.subjectId = insertSubject.call({
                     title: subjectTitle,
-                    type: Subjects.Type.SUBJECT_TYPE_DISCUSSION,
+                    type: subjectType,
                     username,
                     projectId
                 });
@@ -137,19 +139,25 @@ export const insertMessage = new ValidatedMethod({
                 console.log('-- successfully added subject ' + message.subjectId);
             }
         }
-        console.log("-- inserting message: " + JSON.stringify(message, null, 2));
-        var messageId = ServerMessages.insert(message);
+        //If message content is providd, then create message.  Note it's possible
+        //for the subject to be created without an associated message if there is
+        //no content and that's intentional.
+        if(message.content != null && message.content.trim().length > 0) {
+            message.content = message.content.trim();
+            console.log("-- inserting message: " + JSON.stringify(message, null, 2));
+            var messageId = ServerMessages.insert(message);
 
-        /*var userIds = Members.find({projectId: message.projectId}).map(function (member) {
-        return member.userId;
-        });
-        console.log("-- broadcasting message to " + userIds.length + " members: " + JSON.stringify(userIds));
-        Streamy.sessionsForUsers(userIds).emit('incomingMessage', message);*/
-        if(Meteor.isServer) {
-            console.log("-- broadcasting message to all users");
-            Streamy.broadcast('incomingMessage', message);
+            /*var userIds = Members.find({projectId: message.projectId}).map(function (member) {
+            return member.userId;
+            });
+            console.log("-- broadcasting message to " + userIds.length + " members: " + JSON.stringify(userIds));
+            Streamy.sessionsForUsers(userIds).emit('incomingMessage', message);*/
+            if(Meteor.isServer) {
+                console.log("-- broadcasting message to all users");
+                Streamy.broadcast('incomingMessage', message);
+            }
+
+            return messageId;
         }
-
-        return messageId;
     }
 });
