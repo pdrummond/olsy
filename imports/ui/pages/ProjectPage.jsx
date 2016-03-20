@@ -211,7 +211,7 @@ export default class ProjectPage extends React.Component {
             subjectId: subjectId,
             subjectType: subjectType,
             subjectTitle: subjectTitle,
-            username: 'pdrummond',//TODO //this.props.user.username,
+            username: this.props.user.username,
             projectId: this.state.currentProject._id
         };
         insertMessage.call(message, displayError);
