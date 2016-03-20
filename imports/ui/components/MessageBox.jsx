@@ -55,6 +55,7 @@ export default class MessageBox extends React.Component {
     }
 
     render() {
+        console.trace("MessageBox.render()");
         return (
             <div className="message-box" style={{width:this.props.fullWidth?'100%':'calc(100% - 600px)'}}>
                 <Paper zDepth={1} style={{padding:'0px 20px 10px 20px', backgroundColor:'whitesmoke'}}>

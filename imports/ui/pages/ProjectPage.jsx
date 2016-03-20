@@ -65,6 +65,7 @@ export default class ProjectPage extends React.Component {
         this.handleSendMessageSelected = this.handleSendMessageSelected.bind(this);
         this.updateDimensions = this.updateDimensions.bind(this);
         this.handleMessageSubjectSelected = this.handleMessageSubjectSelected.bind(this);
+        this.renderMessageBox = this.renderMessageBox.bind(this);
     }
 
     componentWillReceiveProps(nextProps) {
@@ -151,7 +152,7 @@ export default class ProjectPage extends React.Component {
                     <MessageHistory
                         onSubjectSelected={this.handleMessageSubjectSelected}
                         currentProject={this.state.currentProject}
-                        style={{height:(this.state.openMessageBox?'calc(100% - 340px)':'calc(100% - 65px)') }}/>
+                        style={{height:(this.state.openMessageBox?'calc(100% - 285px)':'calc(100% - 0px)') }}/>
                     {this.renderMessageBox()}
                 </div>
             </div>
@@ -160,23 +161,26 @@ export default class ProjectPage extends React.Component {
 
     renderMessageBox() {
         if(this.props.user) {
-            if(this.state.openMessageBox) {
-                return (
-                    <MessageBox
-                        projectKey={this.state.currentProject.key}
-                        selectedSubject={this.state.selectedSubject}
-                        subjects={this.props.subjects}
-                        onCancelMessageSelected={() => {this.setState({openMessageBox: false})}}
-                        onSendMessageSelected={this.handleSendMessageSelected}
-                        fullWidth={this.state.windowWidth < AUTO_DOCK_WIDTH || !this.state.openRightSidebar}/>
-                );
-            } else {
-                return (
-                    <FloatingActionButton style={{position:'fixed', bottom:'30px', right:this.state.windowWidth < AUTO_DOCK_WIDTH || !this.state.openRightSidebar?'30px':'630px'}} onTouchTap={ () => { this.setState({openMessageBox: true})} }>
-                        <ContentAdd />
-                    </FloatingActionButton>
-                )
-            }
+            return (
+                <div>
+                    <div style={{display:(this.state.openMessageBox?'block':'none')}}>
+                        <MessageBox
+                            projectKey={this.state.currentProject.key}
+                            selectedSubject={this.state.selectedSubject}
+                            subjects={this.props.subjects}
+                            onCancelMessageSelected={() => {this.setState({openMessageBox: false})}}
+                            onSendMessageSelected={this.handleSendMessageSelected}
+                            fullWidth={this.state.windowWidth < AUTO_DOCK_WIDTH || !this.state.openRightSidebar}/>
+                    </div>
+                    <div style={{display:(this.state.openMessageBox?'none':'block')}} >
+                        <FloatingActionButton
+                            style={{position:'fixed', bottom:'30px', right:this.state.windowWidth < AUTO_DOCK_WIDTH || !this.state.openRightSidebar?'30px':'630px'}} onTouchTap={ () => { this.setState({openMessageBox: true})} }>
+                            <ContentAdd />
+                        </FloatingActionButton>
+                    </div>
+                </div>
+            );
+
         }
     }
 
@@ -187,101 +191,100 @@ export default class ProjectPage extends React.Component {
                     Want to contribute to this project?
                     <RaisedButton href="/join" linkButton={true} label="Sign-up for free" primary={true} style={{marginLeft:'5px', marginRight:'5px'}}/>
                     or <a href="/tour">Learn more about OpenLoops</a>
-                </Paper>
-            );
-        }
+            </Paper>
+        );
     }
+}
 
-    handleProjectSelected(project) {
-        this.setState({currentProject: project, openLeftSidebar:false});
-        browserHistory.push(`/project/${project._id}`);
-    }
+handleProjectSelected(project) {
+    this.setState({currentProject: project, openLeftSidebar:false});
+    browserHistory.push(`/project/${project._id}`);
+}
 
-    handleSendMessageSelected(content, subjectId, subjectTitle, subjectType,) {
-        var message = {
-            content: content,
-            subjectId: subjectId,
-            subjectType: subjectType,
-            subjectTitle: subjectTitle,
-            username: 'pdrummond',//TODO //this.props.user.username,
-            projectId: this.state.currentProject._id
-        };
-        insertMessage.call(message, displayError);
-    }
+handleSendMessageSelected(content, subjectId, subjectTitle, subjectType,) {
+    var message = {
+        content: content,
+        subjectId: subjectId,
+        subjectType: subjectType,
+        subjectTitle: subjectTitle,
+        username: 'pdrummond',//TODO //this.props.user.username,
+        projectId: this.state.currentProject._id
+    };
+    insertMessage.call(message, displayError);
+}
 
-    handleMessageSubjectSelected(selectedSubject) {
-        console.log("Selected subject: " + selectedSubject.title);
-        this.setState({selectedSubject});
-    }
+handleMessageSubjectSelected(selectedSubject) {
+    this.setState({openMessageBox:true, selectedSubject});
+}
 
-    onToggleFavouriteSelected(project) {
-        updateIsFavourite.call({
-            projectId: project._id,
-            isFavourite: !project.isFavourite
-        }, displayError);
-    }
+onToggleFavouriteSelected(project) {
+    updateIsFavourite.call({
+        projectId: project._id,
+        isFavourite: !project.isFavourite
+    }, displayError);
+}
 
-    handleFavouriteSelected(project) {
-        updateIsFavourite.call({
-            projectId: project._id,
-            isFavourite: false
-        }, displayError);
-    }
+handleFavouriteSelected(project) {
+    updateIsFavourite.call({
+        projectId: project._id,
+        isFavourite: false
+    }, displayError);
+}
 
-    onUpdateFavouritesOrder(projects) {
-        updateProjectsOrder.call(projects);
-    }
+onUpdateFavouritesOrder(projects) {
+    updateProjectsOrder.call(projects);
+}
 
-    onRemoveProjectSelected(project) {
-        this.setState({openConfirmProjectDeleteDialog: true, selectedProject: project});
-    }
+onRemoveProjectSelected(project) {
+    this.setState({openConfirmProjectDeleteDialog: true, selectedProject: project});
+}
 
-    onNewProjectSelected() {
-        this.setState({openNewProjectDialog: true});
-    }
+onNewProjectSelected() {
+    this.setState({openNewProjectDialog: true});
+}
 
-    insertProject(name, key) {
-        this.setState({openNewProjectDialog: false});
-        insertProject.call({name,key}, displayError);
-    }
+insertProject(name, key) {
+    this.setState({openNewProjectDialog: false});
+    insertProject.call({name,key}, displayError);
+}
 
-    deleteProject() {
-        this.setState({openConfirmProjectDeleteDialog: false, selectedProject: null});
-        removeProject.call({
-            projectId: this.state.selectedProject._id
-        }, displayError);
-    }
+deleteProject() {
+    this.setState({openConfirmProjectDeleteDialog: false, selectedProject: null});
+    removeProject.call({
+        projectId: this.state.selectedProject._id
+    }, displayError);
+}
 
-    componentDidMount() {
-        this.updateDimensions();
-        window.addEventListener("resize", this.updateDimensions);
-    }
+componentDidMount() {
+    this.updateDimensions();
+    window.addEventListener("resize", this.updateDimensions);
+}
 
-    updateDimensions() {
-        var w = window,
-        d = document,
-        documentElement = d.documentElement,
-        body = d.getElementsByTagName('body')[0],
-        width = w.innerWidth || documentElement.clientWidth || body.clientWidth,
-        height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight;
-        this.setState({windowWidth:width});
-    }
+updateDimensions() {
+    var w = window,
+    d = document,
+    documentElement = d.documentElement,
+    body = d.getElementsByTagName('body')[0],
+    width = w.innerWidth || documentElement.clientWidth || body.clientWidth,
+    height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight;
+    this.setState({windowWidth:width});
+}
 
-    renderRightViewTitle() {
-        if(this.props.currentSubject) {
-            return "OLS-666";
-        } else {
-            return "Subjects";
-        }
+renderRightViewTitle() {
+    if(this.props.currentSubject) {
+        return "OLS-666";
+    } else {
+        return "Subjects";
     }
+}
 
-    renderRightView() {
-        if(this.props.currentSubject) {
-            return <SubjectDetailer projectKey={this.state.currentProject.key} subject={this.props.currentSubject} subjectMessages={this.props.subjectMessages}/>;
-        } else {
-            return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
-        }
+renderRightView() {
+    if(this.props.currentSubject) {
+        return <SubjectDetailer projectKey={this.state.currentProject.key} subject={this.props.currentSubject} subjectMessages={this.props.subjectMessages}/>;
+    } else {
+        return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
     }
+}
 }
 
 ProjectPage.propTypes = {
