@@ -6,6 +6,7 @@ import ProjectContainer from '../../ui/containers/ProjectContainer.jsx';
 import AuthPageSignIn from '../../ui/pages/AuthPageSignIn.jsx';
 import AuthPageJoin from '../../ui/pages/AuthPageJoin.jsx';
 import NotFoundPage from '../../ui/pages/NotFoundPage.jsx';
+import WelcomeContainer from '../../ui/containers/WelcomeContainer.jsx';
 
 //Needed for onTouchTap
 //Can go away when react 1.0 release
@@ -18,6 +19,7 @@ Meteor.startup(function() {
 export const renderRoutes = () => (
   <Router history={browserHistory}>
     <Route path="/" component={AppContainer}>
+        <Route path="/welcome" component={WelcomeContainer}/>
         <Route path="/project/:projectId" component={ProjectContainer}/>
         <Route path="/project/:projectId/subject/:subjectId" component={ProjectContainer}/>
         <Route path="signin" component={AuthPageSignIn}/>

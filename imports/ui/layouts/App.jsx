@@ -16,7 +16,7 @@ export default App = React.createClass({
     render() {
         return (
             <div className="app">
-                {this.props.children || 'Welcome to OpenLoops'}
+                {this.props.children || <p>Welcome to OpenLoops - click <a href="/welcome">here</a> to continue</p>}
             </div>
         );
     }

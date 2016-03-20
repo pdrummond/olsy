@@ -194,7 +194,7 @@ export default class ProjectPage extends React.Component {
                 <Paper style={{backgroundColor: 'whitesmoke', padding:'20px'}}>
                     Want to contribute to this project?
                     <RaisedButton href="/join" linkButton={true} label="Sign-up for free" primary={true} style={{marginLeft:'5px', marginRight:'5px'}}/>
-                    or <a href="/tour">Learn more about OpenLoops</a>
+                    or <a href="/welcome">Learn more about OpenLoops</a>
                 </Paper>
             );
         }

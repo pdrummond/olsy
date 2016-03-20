@@ -38,6 +38,7 @@ export default class SignUpPage extends React.Component {
 
     Accounts.createUser({
       email,
+      username,
       password,
     }, err => {
       if (err) {

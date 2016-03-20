@@ -1,3 +1,5 @@
+import '../../api/users/users.js';
+import '../../api/users/server/user-publications.js';
 
 import '../../api/projects/project-methods.js';
 import '../../api/projects/server/publications.js';

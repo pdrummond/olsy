@@ -8,7 +8,8 @@ import {
 
 // if the database is empty on server start, create some sample data.
 Meteor.startup(() => {
-    if (Projects.find().count() === 0) {
+    const enable = false;
+    if (Projects.find().count() === 0 && enable == true) {
         const data = [
             {
                 name: 'OpenLoops MVP',

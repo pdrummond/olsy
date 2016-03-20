@@ -23,12 +23,12 @@ export const insertProject = new ValidatedMethod({
         name: { type: String },
         key: { type: String },
         isFavourite: { type: Boolean, optional:true, defaultValue:false },
-        userId: { type: String, regEx: SimpleSchema.RegEx.Id, optional: true }
+        username: { type: String, optional: true }
     }).validator(),
-    run({name, key, isFavourite, userId}) {
+    run({name, key, isFavourite, username}) {
         var project = {
             name,
-            userId,
+            username,
             isFavourite,
             order: Projects.find().count(),
             createdAt: new Date(),

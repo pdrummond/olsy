@@ -23,7 +23,7 @@ Projects.deny({
 
 Projects.schema = new SimpleSchema({
     name: { type: String },
-    userId: { type: String, regEx: SimpleSchema.RegEx.Id, optional: true },
+    username: { type: String, optional: true },
     isFavourite: {type: Boolean, defaultValue: false},
     key: {type: String},
     theme: {type: String, defaultValue: 'blue'},
@@ -42,7 +42,7 @@ Projects.publicFields = {
     isFavourite: 1,
     key: 1,
     theme: 1,
-    userId: 1,
+    username: 1,
     createdAt: 1,
     updatedAt: 1,
     order: 1
@@ -50,22 +50,22 @@ Projects.publicFields = {
 
 Projects.helpers({
 
-    // A project is considered to be private if it has a userId set
+    // A project is considered to be private if it has a username set
     isPrivate() {
-        return !!this.userId;
+        return !!this.username;
     },
 
     isLastPublicProject() {
-        const publicProjectCount = Projects.find({ userId: { $exists: false } }).count();
+        const publicProjectCount = Projects.find({ username: { $exists: false } }).count();
         return !this.isPrivate() && publicProjectCount === 1;
     },
 
-    editableBy(userId) {
-        if (!this.userId) {
+    editableBy(username) {
+        if (!this.username) {
             return true;
         }
 
-        return this.userId === userId;
+        return this.username === username;
     },
 
     items() {
