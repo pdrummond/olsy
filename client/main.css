@@ -46,13 +46,15 @@ html,body {
 }
 
 .label {
-    background-color: #47AAC1;
-    color: white;
-    font-weight: bold;
-    padding: 3px;
+    border: 1px solid lightgray;
+    background-color:whitesmoke;
+    border-radius:5px;
+    color: black;
+    font-weight: normal;
+    padding: 0px 3px 0px 3px;
     font-size: 12px;
     border-radius: 4px;
-    margin-right: 10px;
+    margin-right: 3px;
     position: relative;
     top: -1px;
 }
@@ -158,4 +160,13 @@ html,body {
 
 .subject-card {
     margin-bottom:5px;
+}
+
+.subject-detailer-buttonbar {
+    position: fixed;
+    width: 100%;
+    padding: 10px 0px 10px 30px;
+    bottom: 0px;
+    background-color: whitesmoke;
+    border-top: 1px solid lightgray;
 }

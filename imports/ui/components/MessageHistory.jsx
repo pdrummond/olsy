@@ -58,6 +58,7 @@ export default class MessageHistory extends React.Component {
                 });
                 var clientMessages = ClientMessages.find({}, {sort: {seq: 1}}).fetch();
                 this.setState({messages: clientMessages, showBackwardLink: result.showBackwardLink, showForwardLink: result.showForwardLink});
+                this.scrollBottom();
             }
         }.bind(this));
         var count = ClientMessages.find({}).count();

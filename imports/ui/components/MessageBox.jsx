@@ -31,6 +31,8 @@ const styles = {
     },
 };
 
+const DEFAULT_SUBJECT_TYPE = Subjects.Type.SUBJECT_TYPE_DISCUSSION;
+
 export default class MessageBox extends React.Component {
     constructor(props) {
         super(props);
@@ -40,6 +42,8 @@ export default class MessageBox extends React.Component {
             content: ""
         }
         this.handleClearSubject = this.handleClearSubject.bind(this);
+        this.handleSetSubjectTitle = this.handleSetSubjectTitle.bind(this);
+        this.handleSetSubjectType = this.handleSetSubjectType.bind(this);
         this.onContentChange = this.onContentChange.bind(this);
         this.onSendMessageSelected = this.onSendMessageSelected.bind(this);
     }
@@ -47,6 +51,8 @@ export default class MessageBox extends React.Component {
     componentWillReceiveProps(nextProps) {
         if(nextProps.selectedSubject) {
             this.setState({selectedSubject: nextProps.selectedSubject});
+        } else {
+            this.setState({selectedSubject: null});
         }
     }
 
@@ -63,12 +69,12 @@ export default class MessageBox extends React.Component {
                         <IconMenu
                             iconButtonElement={this.renderSubjectType()}
                             tabIndex={-1}>
-                            <MenuItem primaryText="Discussion" leftIcon={<DiscussionIcon/>} onTouchTap={() => { this.handleClearSubject({subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION}) } }/>
-                            <MenuItem primaryText="Task" leftIcon={<TaskIcon/>} onTouchTap={() => { this.handleClearSubject({subjectType: Subjects.Type.SUBJECT_TYPE_TASK}) } }/>
+                            <MenuItem primaryText="Discussion" leftIcon={<DiscussionIcon/>} onTouchTap={() => { this.handleSetSubjectType(Subjects.Type.SUBJECT_TYPE_DISCUSSION) } }/>
+                            <MenuItem primaryText="Task" leftIcon={<TaskIcon/>} onTouchTap={() => { this.handleSetSubjectType(Subjects.Type.SUBJECT_TYPE_TASK) } }/>
                         </IconMenu>
                         <TextField
                             value={this.state.selectedSubject?this.state.selectedSubject.title: this.state.subjectTitle}
-                            onChange={(e) => {this.handleClearSubject({subjectTitle: e.target.value})}}
+                            onChange={(e) => {this.handleSetSubjectTitle(e.target.value)}}
                             floatingLabelText="Subject" hintText="Enter Subject here (optional)" fullWidth={true}/>
                         <FlatButton
                             disabled={true}
@@ -113,8 +119,24 @@ export default class MessageBox extends React.Component {
         this.props.onSendMessageSelected(this.state.content, subjectId, subjectTitle, subjectType);
     }
 
-    handleClearSubject(extraState) {
-        this.setState(_.extend({selectedSubject: null, subjectTitle: '', subjectType: Subjects.Type.SUBJECT_TYPE_DISCUSSION}, extraState));
+    handleSetSubjectTitle(subjectTitle) {
+        if(this.state.selectedSubject != null) {
+            this.setState({selectedSubject: null, subjectType: DEFAULT_SUBJECT_TYPE, subjectTitle});
+        } else {
+            this.setState({subjectTitle});
+        }
+    }
+
+    handleSetSubjectType(subjectType) {
+        if(this.state.selectedSubject != null) {
+            this.setState({selectedSubject: null, subjectType, subjectTitle:''});
+        } else {
+            this.setState({subjectType});
+        }
+    }
+
+    handleClearSubject() {
+        this.setState({selectedSubject: null, subjectType: DEFAULT_SUBJECT_TYPE, subjectTitle:''});
     }
 
     renderSubjectType() {

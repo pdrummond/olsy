@@ -35,6 +35,10 @@ import {
 } from '../../api/projects/project-methods.js';
 
 import {
+    updateSubject
+} from '../../api/subjects/subject-methods.js';
+
+import {
     insertMessage
 } from '../../api/server-messages/server-message-methods.js';
 
@@ -72,7 +76,7 @@ export default class ProjectPage extends React.Component {
         console.log("componentWillReceiveProps: " + JSON.stringify(nextProps.currentProject));
         if(this.props.currentProject == null || this.props.currentProject._id !== nextProps.currentProject._id) {
             console.log("project has changed");
-            this.setState({currentProject: nextProps.currentProject});
+            this.setState({currentProject: nextProps.currentProject, selectedSubject: null});
         }
     }
 
@@ -191,100 +195,108 @@ export default class ProjectPage extends React.Component {
                     Want to contribute to this project?
                     <RaisedButton href="/join" linkButton={true} label="Sign-up for free" primary={true} style={{marginLeft:'5px', marginRight:'5px'}}/>
                     or <a href="/tour">Learn more about OpenLoops</a>
-            </Paper>
-        );
+                </Paper>
+            );
+        }
     }
-}
 
-handleProjectSelected(project) {
-    this.setState({currentProject: project, openLeftSidebar:false});
-    browserHistory.push(`/project/${project._id}`);
-}
-
-handleSendMessageSelected(content, subjectId, subjectTitle, subjectType,) {
-    var message = {
-        content: content,
-        subjectId: subjectId,
-        subjectType: subjectType,
-        subjectTitle: subjectTitle,
-        username: 'pdrummond',//TODO //this.props.user.username,
-        projectId: this.state.currentProject._id
-    };
-    insertMessage.call(message, displayError);
-}
-
-handleMessageSubjectSelected(selectedSubject) {
-    this.setState({openMessageBox:true, selectedSubject});
-}
-
-onToggleFavouriteSelected(project) {
-    updateIsFavourite.call({
-        projectId: project._id,
-        isFavourite: !project.isFavourite
-    }, displayError);
-}
-
-handleFavouriteSelected(project) {
-    updateIsFavourite.call({
-        projectId: project._id,
-        isFavourite: false
-    }, displayError);
-}
-
-onUpdateFavouritesOrder(projects) {
-    updateProjectsOrder.call(projects);
-}
-
-onRemoveProjectSelected(project) {
-    this.setState({openConfirmProjectDeleteDialog: true, selectedProject: project});
-}
-
-onNewProjectSelected() {
-    this.setState({openNewProjectDialog: true});
-}
-
-insertProject(name, key) {
-    this.setState({openNewProjectDialog: false});
-    insertProject.call({name,key}, displayError);
-}
-
-deleteProject() {
-    this.setState({openConfirmProjectDeleteDialog: false, selectedProject: null});
-    removeProject.call({
-        projectId: this.state.selectedProject._id
-    }, displayError);
-}
-
-componentDidMount() {
-    this.updateDimensions();
-    window.addEventListener("resize", this.updateDimensions);
-}
-
-updateDimensions() {
-    var w = window,
-    d = document,
-    documentElement = d.documentElement,
-    body = d.getElementsByTagName('body')[0],
-    width = w.innerWidth || documentElement.clientWidth || body.clientWidth,
-    height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight;
-    this.setState({windowWidth:width});
-}
-
-renderRightViewTitle() {
-    if(this.props.currentSubject) {
-        return "OLS-666";
-    } else {
-        return "Subjects";
+    handleProjectSelected(project) {
+        this.setState({currentProject: project, openLeftSidebar:false});
+        browserHistory.push(`/project/${project._id}`);
     }
-}
 
-renderRightView() {
-    if(this.props.currentSubject) {
-        return <SubjectDetailer projectKey={this.state.currentProject.key} subject={this.props.currentSubject} subjectMessages={this.props.subjectMessages}/>;
-    } else {
-        return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
+    handleSendMessageSelected(content, subjectId, subjectTitle, subjectType,) {
+        var message = {
+            content: content,
+            subjectId: subjectId,
+            subjectType: subjectType,
+            subjectTitle: subjectTitle,
+            username: 'pdrummond',//TODO //this.props.user.username,
+            projectId: this.state.currentProject._id
+        };
+        insertMessage.call(message, displayError);
     }
-}
+
+    handleMessageSubjectSelected(selectedSubject) {
+        this.setState({openMessageBox:true, selectedSubject});
+    }
+
+    onToggleFavouriteSelected(project) {
+        updateIsFavourite.call({
+            projectId: project._id,
+            isFavourite: !project.isFavourite
+        }, displayError);
+    }
+
+    handleFavouriteSelected(project) {
+        updateIsFavourite.call({
+            projectId: project._id,
+            isFavourite: false
+        }, displayError);
+    }
+
+    onUpdateFavouritesOrder(projects) {
+        updateProjectsOrder.call(projects);
+    }
+
+    onRemoveProjectSelected(project) {
+        this.setState({openConfirmProjectDeleteDialog: true, selectedProject: project});
+    }
+
+    onNewProjectSelected() {
+        this.setState({openNewProjectDialog: true});
+    }
+
+    insertProject(name, key) {
+        this.setState({openNewProjectDialog: false});
+        insertProject.call({name,key}, displayError);
+    }
+
+    deleteProject() {
+        this.setState({openConfirmProjectDeleteDialog: false, selectedProject: null});
+        removeProject.call({
+            projectId: this.state.selectedProject._id
+        }, displayError);
+    }
+
+    componentDidMount() {
+        this.updateDimensions();
+        window.addEventListener("resize", this.updateDimensions);
+    }
+
+    updateDimensions() {
+        var w = window,
+        d = document,
+        documentElement = d.documentElement,
+        body = d.getElementsByTagName('body')[0],
+        width = w.innerWidth || documentElement.clientWidth || body.clientWidth,
+        height = w.innerHeight|| documentElement.clientHeight|| body.clientHeight;
+        this.setState({windowWidth:width});
+    }
+
+    renderRightViewTitle() {
+        if(this.props.currentSubject) {
+            return "OLS-666";
+        } else {
+            return "Subjects";
+        }
+    }
+
+    renderRightView() {
+        if(this.props.currentSubject) {
+            return <SubjectDetailer
+                projectKey={this.state.currentProject.key}
+                subject={this.props.currentSubject}
+                subjectMessages={this.props.subjectMessages}
+                onSaveSelected={this.handleSubjectSaveSelected}/>;
+        } else {
+            return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
+        }
+    }
+
+    handleSubjectSaveSelected(subject, type) {
+        updateSubject.call({subjectId: subject._id, type}, displayError);
+    }
 }
 
 ProjectPage.propTypes = {

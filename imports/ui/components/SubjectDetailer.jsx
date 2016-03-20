@@ -1,4 +1,5 @@
 import React from 'react';
+import { browserHistory } from 'react-router';
 import Colors from 'material-ui/lib/styles/colors';
 import List from 'material-ui/lib/lists/list';
 import ListItem from 'material-ui/lib/lists/list-item';
@@ -18,8 +19,22 @@ import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
 import CardMedia from 'material-ui/lib/card/card-media';
 import CardTitle from 'material-ui/lib/card/card-title';
-
+import RaisedButton from 'material-ui/lib/raised-button';
+import FlatButton from 'material-ui/lib/flat-button';
+import Paper from 'material-ui/lib/paper';
+import Divider from 'material-ui/lib/divider';
 import {parseMarkdown} from 'meteor/themeteorchef:commonmark';
+
+import LabelChooser from './LabelChooser';
+
+import { Subjects } from '../../api/subjects/subjects.js';
+
+const styles = {
+    button: {
+        margin:'15px',
+        marginRight:'50px'
+    }
+};
 
 const iconButtonElement = (
     <IconButton
@@ -37,37 +52,21 @@ const rightIconMenu = (
     </IconMenu>
 );
 
-const fruit = [
-    'Apple', 'Apricot', 'Avocado',
-    'Banana', 'Bilberry', 'Blackberry', 'Blackcurrant', 'Blueberry',
-    'Boysenberry', 'Blood Orange',
-    'Cantaloupe', 'Currant', 'Cherry', 'Cherimoya', 'Cloudberry',
-    'Coconut', 'Cranberry', 'Clementine',
-    'Damson', 'Date', 'Dragonfruit', 'Durian',
-    'Elderberry',
-    'Feijoa', 'Fig',
-    'Goji berry', 'Gooseberry', 'Grape', 'Grapefruit', 'Guava',
-    'Honeydew', 'Huckleberry',
-    'Jabouticaba', 'Jackfruit', 'Jambul', 'Jujube', 'Juniper berry',
-    'Kiwi fruit', 'Kumquat',
-    'Lemon', 'Lime', 'Loquat', 'Lychee',
-    'Nectarine',
-    'Mango', 'Marion berry', 'Melon', 'Miracle fruit', 'Mulberry', 'Mandarine',
-    'Olive', 'Orange',
-    'Papaya', 'Passionfruit', 'Peach', 'Pear', 'Persimmon', 'Physalis', 'Plum', 'Pineapple',
-    'Pumpkin', 'Pomegranate', 'Pomelo', 'Purple Mangosteen',
-    'Quince',
-    'Raspberry', 'Raisin', 'Rambutan', 'Redcurrant',
-    'Salal berry', 'Satsuma', 'Star fruit', 'Strawberry', 'Squash', 'Salmonberry',
-    'Tamarillo', 'Tamarind', 'Tomato', 'Tangerine',
-    'Ugli fruit',
-    'Watermelon',
-];
-
 export default class SubjectDetailer extends React.Component {
 
     constructor(props) {
         super(props);
+        this.state = {
+            type: Subjects.Type.SUBJECT_TYPE_DISCUSSION
+        }
+        this.handleSaveSelected = this.handleSaveSelected.bind(this);
+        this.close = this.close.bind(this);
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if(nextProps.subject) {
+            this.setState({type: nextProps.subject.type});
+        }
     }
 
     render() {
@@ -76,39 +75,44 @@ export default class SubjectDetailer extends React.Component {
             <div>
                 <List style={{backgroundColor: 'whitesmoke', borderBottom:'1px solid lightgray'}}>
                     <ListItem
-                        primaryText={this.props.subject.title || ''}
-                        leftAvatar={<Avatar icon={<DiscussionIcon />} backgroundColor={Colors.cyan900} />}
+                        primaryText={this.props.subject.title?<span>{this.props.projectKey}-{this.props.subject.seq}: {this.props.subject.title}</span> : ''}
+                        leftAvatar={this.renderAvatar()}
                         rightIconButton={rightIconMenu}
                         secondaryText={
                             <div>
-                                <span className="key">{this.props.projectKey}-{this.props.subject.seq}: Created by pdrummond 2 minutes ago</span> <span className="label">open</span>
+                                <span className="label">Release One</span> <span className="label">In Progress</span>
                             </div>
                         }
                         />
                 </List>
-                <div style={{display:'flex', padding:'0px 10px'}}>
-                    <SelectField value={this.props.subject.type} onChange={this.handleChange} floatingLabelText="Type">
-                        <MenuItem value={'discussion'} primaryText="Discussion"/>
-                        <MenuItem value={'task'} primaryText="Task"/>
-                    </SelectField>
-                    <SelectField value={'open'} style={{marginLeft:'5px'}} onChange={this.handleChange} floatingLabelText="Status">
-                        <MenuItem value={'open'} primaryText="Open"/>
-                        <MenuItem value={'in-progress'} primaryText="In Progress"/>
-                        <MenuItem value={'done'} primaryText="Done"/>
-                    </SelectField>
-                    <AutoComplete
-                        style={{marginLeft:'5px'}}
-                        floatingLabelText="Assignee"
-                        filter={AutoComplete.fuzzyFilter}
-                        triggerUpdateOnFocus={true}
-                        dataSource={fruit}
-                        />
+                <div style={{padding:'30px'}}>
+                    <Paper style={{padding:'10px'}}>
+                        <div style={{display:'flex', padding:'0px 10px'}}>
+                            <SelectField value={this.state.type} onChange={(e, idx, value) => {this.setState({type: value})}} floatingLabelText="Type">
+                                <MenuItem value={'discussion'} primaryText="Discussion"/>
+                                <MenuItem value={'task'} primaryText="Task"/>
+                            </SelectField>
+                            <AutoComplete
+                                style={{marginLeft:'5px'}}
+                                hintText="Enter a username"
+                                floatingLabelText="Assignee"
+                                filter={AutoComplete.fuzzyFilter}
+                                triggerUpdateOnFocus={true}
+                                dataSource={['pdrummond', 'harold']}
+                                />
+                        </div>
+                        <LabelChooser/>
+                        <div style={{float:'right', marginRight:'30px'}}>
+                            <RaisedButton onTouchTap={this.close} label="Cancel" style={{marginRight:'5px'}}/>
+                            <RaisedButton onTouchTap={this.handleSaveSelected}label="Save" primary={true}/>
+                        </div>
+                        <div style={{clear:'both', height:'10px'}}></div>
+                    </Paper>
                 </div>
-                <div style={{padding:'15px', marginTop:'5px'}}>
-                    <span className='header-label'>Messages</span>
-                    <List style={{padding:'10px'}}>
-                        {this.renderSubjectMessages()}
-                    </List>
+                <div className="subject-detailer-buttonbar">
+                    <RaisedButton label="New Message" secondary={true} style={styles.button} />
+                    <RaisedButton label="Focus on this" style={styles.button} />
+                    <RaisedButton label="Archive" primary={true} style={styles.button} />
                 </div>
             </div>
         );
@@ -132,5 +136,21 @@ export default class SubjectDetailer extends React.Component {
         if ( content ) {
             return { __html: parseMarkdown(content) };
         }
+    }
+
+    renderAvatar() {
+        switch(this.state.type) {
+            case Subjects.Type.SUBJECT_TYPE_DISCUSSION: return <Avatar icon={<DiscussionIcon />} backgroundColor={Colors.cyan900} />;
+            case Subjects.Type.SUBJECT_TYPE_TASK: return <Avatar icon={<TaskIcon />} backgroundColor={Colors.green700} />;
+        }
+    }
+
+    handleSaveSelected() {
+        this.props.onSaveSelected(this.props.subject, this.state.type);
+        this.close();
+    }
+
+    close() {
+        browserHistory.push(`/project/${this.props.subject.projectId}`);
     }
 }

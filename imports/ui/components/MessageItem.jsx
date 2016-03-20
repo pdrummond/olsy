@@ -1,4 +1,5 @@
 import React from 'react';
+import { browserHistory } from 'react-router';
 import Card from 'material-ui/lib/card/card';
 import CardActions from 'material-ui/lib/card/card-actions';
 import CardHeader from 'material-ui/lib/card/card-header';
@@ -13,15 +14,42 @@ import {parseMarkdown} from 'meteor/themeteorchef:commonmark';
 import BugIcon from 'material-ui/lib/svg-icons/action/bug-report';
 import TaskIcon from 'material-ui/lib/svg-icons/alert/error';
 import DiscussionIcon from 'material-ui/lib/svg-icons/communication/chat';
-
+import List from 'material-ui/lib/lists/list';
+import Menu from 'material-ui/lib/menus/menu';
+import MenuItem from 'material-ui/lib/menus/menu-item';
+import Divider from 'material-ui/lib/divider';
+import FontIcon from 'material-ui/lib/font-icon';
+import NewIcon from 'material-ui/lib/svg-icons/content/add-circle';
+import SubjectDetailIcon from 'material-ui/lib/svg-icons/action/subject';
+import Delete from 'material-ui/lib/svg-icons/action/delete';
+import EditIcon from 'material-ui/lib/svg-icons/image/edit';
+import RemoveRedEye from 'material-ui/lib/svg-icons/image/remove-red-eye';
+import Popover from 'material-ui/lib/popover/popover';
 import { Subjects } from '../../api/subjects/subjects.js';
+
+const style = {
+    popover: {
+
+    },
+    menu: {
+        marginRight: 32,
+        marginBottom: 32,
+        float: 'left',
+        position: 'relative',
+        zIndex: 0,
+    },
+    rightIcon: {
+        textAlign: 'center',
+        lineHeight: '24px',
+    },
+};
 
 export default class MessageItem extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            expanded: false,
+            openSubjectPopover: false
         };
         this.handleExpandChange = this.handleExpandChange.bind(this);
         this.handleToggle = this.handleToggle.bind(this);
@@ -65,11 +93,33 @@ export default class MessageItem extends React.Component {
         if(this.props.message.subjectId) {
             var subject = Subjects.findOne(this.props.message.subjectId);
             return (
-                <span style={{cursor:'pointer', display:"flex", alignItems: 'center'}} onClick={() => { self.props.onSubjectSelected(subject)}}>
-                    {this.renderSubjectIcon(subject)}
-                    <span style={{marginLeft: '5px'}}> {subject.title} </span>
-                    <span style={{marginLeft: '5px', color:'lightgray'}}> {this.props.projectKey}-{subject.seq}</span>
-                </span>
+                <div>
+                    <span style={{cursor:'pointer', display:"flex", alignItems: 'center'}} onClick={(e) => { this.setState({openSubjectPopover:true, subjectPopoverAnchorEl: e.currentTarget})}}>
+                        {this.renderSubjectIcon(subject)}
+                        <span style={{marginLeft: '5px'}}> {subject.title} </span>
+                        <span style={{marginLeft: '5px', color:'lightgray'}}> {this.props.projectKey}-{subject.seq}</span>
+                    </span>
+                    <Popover
+                        open={this.state.openSubjectPopover}
+                        anchorEl={this.state.subjectPopoverAnchorEl}
+                        anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                        targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                        onRequestClose={() => { this.setState({openSubjectPopover:false})}}
+                        >
+                        <div style={style.popover}>
+                            <List subheader="Subject">
+                                <MenuItem primaryText="Focus on this subject" leftIcon={<RemoveRedEye />} />
+                                <MenuItem onTouchTap={() => {self.setState({openSubjectPopover:false}); self.props.onSubjectSelected(subject)}} primaryText="Add message to this subject" leftIcon={<NewIcon />} />
+                                <MenuItem onTouchTap={() => {self.setState({openSubjectPopover:false}); browserHistory.push(`/project/${subject.projectId}/subject/${subject._id}`); }} primaryText="Show subject details" leftIcon={<SubjectDetailIcon />} />
+                            </List>
+                            <Divider />
+                            <List subheader="Message">
+                                <MenuItem primaryText="Edit message" leftIcon={<EditIcon />} />
+                                <MenuItem primaryText="Delete message" leftIcon={<Delete />} />
+                            </List>
+                        </div>
+                    </Popover>
+                </div>
             );
         } else {
             return <span>No Subject</span>;

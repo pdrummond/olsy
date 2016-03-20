@@ -30,3 +30,17 @@ export const insertSubject = new ValidatedMethod({
         return subjectId;
     }
 });
+
+export const updateSubject = new ValidatedMethod({
+    name: 'subjects.updateIsFavourite',
+    validate: new SimpleSchema({
+        subjectId: { type: String },
+        type: { type: String }
+    }).validator(),
+    run({subjectId, type }) {
+        //validateSubject(this, subjectId, [checkIfUserCanEdit]);
+        var result = Subjects.update(subjectId, {
+            $set: { type, updatedAt: new Date() },
+        });
+    }
+});

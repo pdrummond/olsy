@@ -19,6 +19,11 @@ import ContentFilter from 'material-ui/lib/svg-icons/content/filter-list';
 import { Subjects } from '../../api/subjects/subjects.js';
 
 
+const styles = {
+    filterComponent: {
+        marginLeft:'5px'
+    }
+};
 
 const iconButtonElement = (
     <IconButton
@@ -53,28 +58,33 @@ export default class SubjectLister extends React.Component {
                         <MenuItem value={'discussion'} primaryText="Discussion"/>
                         <MenuItem value={'task'} primaryText="Task"/>
                     </SelectField>
-                    <SelectField value={'all'} style={{marginLeft:'5px'}} floatingLabelText="Status">
-                        <MenuItem value={'all'} primaryText="All"/>
-                        <MenuItem value={'open'} primaryText="Open"/>
-                        <MenuItem value={'in-progress'} primaryText="In Progress"/>
-                        <MenuItem value={'done'} primaryText="Done"/>
-                    </SelectField>
                     <AutoComplete
                         searchText='All'
-                        style={{marginLeft:'5px'}}
+                        style={styles.filterComponent}
                         floatingLabelText="Assignee"
                         filter={AutoComplete.fuzzyFilter}
                         triggerUpdateOnFocus={true}
                         dataSource={['pdrummond', 'harold', 'fred']}
                         />
-                    <IconMenu
-                        iconButtonElement={<IconButton><ContentFilter /></IconButton>}
-                        value={1}>
-                        <MenuItem value="1" primaryText="Newest First" />
-                        <MenuItem value="2" primaryText="Oldest First" />
-                        <MenuItem value="3" primaryText="Most Messages" />
-                        <MenuItem value="4" primaryText="Most Activity" />
-                    </IconMenu>
+                    <SelectField value={'all'}  floatingLabelText="Label" style={styles.filterComponent}>
+                        <MenuItem value={'all'} primaryText="All"/>
+                        <MenuItem value={'in-progress'} primaryText="In Progress"/>
+                        <MenuItem value={'important'} primaryText="Important"/>
+                        <MenuItem value={'on-hold'} primaryText="On Hold"/>
+                        <MenuItem value={'in-test'} primaryText="In Test"/>
+                        <MenuItem value={'release-1'} primaryText="Release 1"/>
+                        <MenuItem value={'release-2'} primaryText="Relese 2"/>
+                        <MenuItem value={'sprint-1'} primaryText="Sprint 1"/>
+                    </SelectField>
+                    <SelectField value={1}  floatingLabelText="Order by" style={styles.filterComponent}>
+                        <MenuItem value={1} primaryText="Newest First" />
+                        <MenuItem value={2} primaryText="Oldest First" />
+                        <MenuItem value={3} primaryText="Most Messages" />
+                        <MenuItem value={4} primaryText="Most Activity" />
+                    </SelectField>
+                </div>
+                <div>
+                    <div style={{fontSize:'12px', color:'gray', marginLeft:'10px', paddingTop:'10px'}}>Showing 20 subjects, 5 tasks, 10 discussions, filter is on. <a href="#">Clear Filter</a></div>
                 </div>
                 <List>
                     {this.renderSubjectItems()}
@@ -87,13 +97,13 @@ export default class SubjectLister extends React.Component {
         return this.props.subjects.map(function(subject) {
             return <ListItem
                 key={subject._id}
-                primaryText={subject.title}
+                primaryText={subject.title?<span>{this.props.projectKey}-{subject.seq}: {subject.title}</span> : ''}
                 leftAvatar={this.renderAvatar(subject)}
                 rightIconButton={rightIconMenu}
                 onTouchTap={() => { browserHistory.push(`/project/${subject.projectId}/subject/${subject._id}`); }}
                 secondaryText={
                     <div>
-                        <span className="key">{this.props.projectKey}-{subject.seq}: Created by pdrummond 2 minutes ago</span> <span className="label">open</span>
+                        <span className="label">Release One</span> <span className="label">In Progress</span>
                     </div>
                 }
                 />
