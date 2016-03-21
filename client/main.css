@@ -59,6 +59,26 @@ html,body {
     border-top: 2px solid gray;
 }
 
+.label.subject-header-label {
+    font-size:16px;
+    padding:2px 5px 2px 5px;
+}
+
+.label.status-label.open {
+    color:white;
+    background-color:#388E3C;
+    border:none;
+    border-radius:0px;
+}
+
+.label.status-label.closed {
+    color:white;
+    background-color:red;
+    border:none;
+    border-radius:0px;
+    font-weight:bold;
+}
+
 .label {
     border: 1px solid lightgray;
     background-color:whitesmoke;

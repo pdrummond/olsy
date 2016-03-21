@@ -44,3 +44,22 @@ export const updateSubject = new ValidatedMethod({
         });
     }
 });
+
+export const toggleSubjectStatus = new ValidatedMethod({
+    name: 'subjects.toggleSubjectStatus',
+    validate: new SimpleSchema({
+        subjectId: { type: String }
+    }).validator(),
+    run({subjectId}) {
+        //validateSubject(this, subjectId, [checkIfUserCanEdit]);
+        var subject = Subjects.findOne(subjectId);
+        if(subject.status == null) {
+            subject.status = 'open';
+        }
+        subject.status = (subject.status == 'open'?'closed':'open');
+
+        var result = Subjects.update(subjectId, {
+            $set: { status: subject.status, updatedAt: new Date() }
+        });
+    }
+});

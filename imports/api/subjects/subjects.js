@@ -6,6 +6,7 @@ export const Subjects = new Mongo.Collection('Subjects');
 Subjects.schema = new SimpleSchema({
     title: { type: String },
     type: {type: String},
+    status: {type: String, defaultValue: 'open'},
     username: { type: String},
     projectId: { type: String, regEx: SimpleSchema.RegEx.Id},
     seq: {type: Number},
@@ -17,5 +18,5 @@ Subjects.attachSchema(Subjects.schema);
 
 Subjects.Type = {
     SUBJECT_TYPE_DISCUSSION: 'discussion',
-    SUBJECT_TYPE_TASK: 'task'    
+    SUBJECT_TYPE_TASK: 'task'
 };

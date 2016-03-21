@@ -38,22 +38,18 @@ const iconButtonElement = (
     </IconButton>
 );
 
-const rightIconMenu = (
-    <IconMenu iconButtonElement={iconButtonElement}>
-        <MenuItem>Close</MenuItem>
-        <Divider/>
-        <MenuItem>Edit</MenuItem>
-        <MenuItem>Delete</MenuItem>
-    </IconMenu>
-);
 
 export default class SubjectLister extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            openFilterBox: false
+            openFilterBox: false,
+            typeFilter: 'all',
+            statusFilter: 'open'
         }
+        this.handleTypeFilterChange = this.handleTypeFilterChange.bind(this);
+        this.handleStatusFilterChange = this.handleStatusFilterChange.bind(this);
     }
 
     render() {
@@ -68,6 +64,14 @@ export default class SubjectLister extends React.Component {
         );
     }
 
+    handleTypeFilterChange(e, idx, value) {
+        this.setState({typeFilter: value});
+    }
+
+    handleStatusFilterChange(e, idx, value) {
+        this.setState({statusFilter: value});
+    }
+
     renderFilterBox() {
         if(this.state.openFilterBox) {
             return (
@@ -75,19 +79,24 @@ export default class SubjectLister extends React.Component {
                     <Paper>
                         <div style={{display:'flex', flexWrap: 'wrap', padding:'0px 10px', backgroundColor:'whitesmoke'}}>
 
-                            <SelectField style={styles.filterComponent} value={'all'}  floatingLabelText="Type">
+                            <SelectField onChange={this.handleTypeFilterChange} value={this.state.typeFilter}  style={styles.filterComponent} floatingLabelText="Type">
                                 <MenuItem value={'all'} primaryText="All"/>
-                                <MenuItem value={'discussion'} primaryText="Discussion"/>
-                                <MenuItem value={'task'} primaryText="Task"/>
+                                <MenuItem value={'discussion'} primaryText="Discussions"/>
+                                <MenuItem value={'task'} primaryText="Tasks"/>
                             </SelectField>
-                            <AutoComplete
+                            <SelectField onChange={this.handleStatusFilterChange} value={this.state.statusFilter}  style={styles.filterComponent} floatingLabelText="Status">
+                                <MenuItem value={'all'} primaryText="All"/>
+                                <MenuItem value={'open'} primaryText="Open"/>
+                                <MenuItem value={'closed'} primaryText="Closed"/>
+                            </SelectField>
+                            {/*<AutoComplete
                                 searchText='All'
                                 style={styles.filterComponent}
                                 floatingLabelText="Assignee"
                                 filter={AutoComplete.fuzzyFilter}
                                 triggerUpdateOnFocus={true}
                                 dataSource={['pdrummond', 'harold', 'fred']}
-                                />
+                                />*/}
                             <SelectField value={'all'}  floatingLabelText="Label" style={styles.filterComponent}>
                                 <MenuItem value={'all'} primaryText="All"/>
                                 <MenuItem value={'in-progress'} primaryText="In Progress"/>
@@ -118,20 +127,50 @@ export default class SubjectLister extends React.Component {
     }
 
     renderSubjectItems() {
-        return this.props.subjects.map(function(subject) {
+        var self = this;
+        var filteredSubjects = this.props.subjects;
+        filteredSubjects = this.props.subjects.filter(function(subject) {
+            var allowed = true;
+            if(this.state.typeFilter != 'all') {
+                allowed = subject.type == this.state.typeFilter;
+            }
+            if(this.state.statusFilter != 'all') {
+                if(subject.status == null) {
+                    subject.status = 'open';
+                }
+                allowed = subject.status == this.state.statusFilter;
+            }
+            return allowed;
+        }.bind(this));
+
+        return filteredSubjects.map(function(subject) {
             return <ListItem
                 key={subject._id}
                 primaryText={subject.title?<span>{this.props.projectKey}-{subject.seq}: {subject.title}</span> : ''}
                 leftAvatar={this.renderAvatar(subject)}
-                rightIconButton={rightIconMenu}
+                rightIconButton={
+                        <IconMenu iconButtonElement={iconButtonElement}>
+                            <MenuItem onTouchTap={() => { self.props.onSubjectToggleStatusSelected(subject)}}>{subject.status == 'open'?"Close":"Open"}</MenuItem>
+                            <Divider/>
+                            <MenuItem>Edit</MenuItem>
+                            <MenuItem>Delete</MenuItem>
+                        </IconMenu>
+                }
                 onTouchTap={() => { browserHistory.push(`/project/${subject.projectId}/subject/${subject._id}`); }}
                 secondaryText={
                     <div>
+                        {this.renderClosedLabel(subject)}
                         <span className="label">Release One</span> <span className="label">In Progress</span>
                     </div>
                 }
                 />
         }.bind(this));
+    }
+
+    renderClosedLabel(subject) {
+        if(subject.status == 'closed') {
+            return <span className="label status-label closed">CLOSED</span>;
+        }
     }
 
     renderAvatar(subject) {

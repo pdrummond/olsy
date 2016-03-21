@@ -98,7 +98,6 @@ export default class MessageItem extends React.Component {
                         {this.renderSubjectIcon(subject)}
                         <span style={{marginLeft: '5px'}}> {this.props.projectKey}-{subject.seq}: </span>
                         <span style={{marginLeft: '5px'}}> {subject.title} </span>
-
                     </span>
                     <Popover
                         open={this.state.openSubjectPopover}

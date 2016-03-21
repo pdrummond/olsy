@@ -47,7 +47,8 @@ import {
 } from '../../api/projects/project-methods.js';
 
 import {
-    updateSubject
+    updateSubject,
+    toggleSubjectStatus
 } from '../../api/subjects/subject-methods.js';
 
 import {
@@ -222,11 +223,18 @@ export default class ProjectPage extends React.Component {
                         <span style={{color:'gray'}}>{this.props.currentProject.key}-{this.props.currentSubject.seq}:</span> {this.props.currentSubject.title}
                     </div>
                     <div style={{fontSize: '18px', color: 'gray'}}>
-                        <span style={{paddingLeft:'50px'}}>pdrummond created this subject on March 21st, 2016 · 40 messages</span>
+                        <span style={{paddingLeft:'50px'}}>
+                            {this.renderStatusLabel()}
+                            pdrummond created this subject on March 21st, 2016 · 40 messages</span>
                     </div>
                 </div>
             )
         }
+    }
+
+    renderStatusLabel() {
+        var status = this.props.currentSubject.status || "open";
+        return <span className={"label status-label subject-header-label " + status}>{status.toUpperCase()}</span> 
     }
 
     renderSubjectAvatar() {
@@ -338,8 +346,15 @@ export default class ProjectPage extends React.Component {
                 subject={this.props.currentSubject}
                 onSaveSelected={this.handleSubjectSaveSelected}/>;
         } else {*/
-            return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
+            return <SubjectLister
+                onSubjectToggleStatusSelected={this.handleSubjectToggleStatusSelected}
+                projectKey={this.state.currentProject.key}
+                subjects={this.props.subjects}/>;
         //}
+    }
+
+    handleSubjectToggleStatusSelected(subject) {
+        toggleSubjectStatus.call({subjectId: subject._id}, displayError);
     }
 
     handleSubjectSaveSelected(subject, type) {
