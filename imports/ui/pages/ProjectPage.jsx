@@ -66,7 +66,7 @@ export default class ProjectPage extends React.Component {
             openMessageBox: true,
             openLeftSidebar: false,
             dockLeftSidebar: true,
-            openRightSidebar: false,
+            openRightSidebar: true,
             dockRightSidebar: true,
             openNewProjectDialog: false,
             openConfirmProjectDeleteDialog: false

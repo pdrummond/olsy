@@ -146,7 +146,6 @@ export default class MessageBox extends React.Component {
 
     handleClearSubject() {
         this.setState({selectedSubject: null, subjectType: DEFAULT_SUBJECT_TYPE, subjectTitle:''});
-        browserHistory.push(`/project/${this.state.selectedSubject.projectId}`);
     }
 
     renderSubjectType() {
