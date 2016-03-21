@@ -18,16 +18,25 @@ export const loadMessages = new ValidatedMethod({
     name: 'messages.loadMessages',
     validate: new SimpleSchema({
         projectId: { type: String, regEx: SimpleSchema.RegEx.Id},
+        subjectId: { type: String, regEx: SimpleSchema.RegEx.Id, optional:true},
         seq: { type: Number, optional:true }
     }).validator(),
-    run({seq, projectId}) {
-        console.log('> Loading page of messages in project ' + projectId + ' starting at message ' + seq + '.');
+    run({seq, projectId, subjectId}) {
+        console.log('> Loading page of messages in project ' + projectId);
+        console.log('-- Starting seq is ' + seq);
+        console.log('-- Subject is ' + subjectId);
+
+        var query = {projectId};
+        if(subjectId) {
+            query.subjectId = subjectId;
+        }
+
         /*
         If no seq is provided, then we need to return the latest page of results.
         */
         if (seq == null) {
             console.log('-- start message is 0 so finding latest page of messages...');
-            var latestMessage = ServerMessages.findOne({projectId}, {sort: {createdAt: -1}});
+            var latestMessage = ServerMessages.findOne(query, {sort: {createdAt: -1}});
             if (latestMessage) {
                 var latestSeq = latestMessage.seq;
                 console.log('-- seq for latest message is ' + latestSeq);
@@ -41,6 +50,10 @@ export const loadMessages = new ValidatedMethod({
                 console.log('-- There are no messages in this project so the seq is set to 1');
             }
         }
+
+        query.seq =  {$gte: seq};
+
+        console.log('-- Query is ' + JSON.stringify(query));
 
         /*
         This result structure is returned to the client.  It consists of the page of messages, and two booleans
@@ -57,7 +70,7 @@ export const loadMessages = new ValidatedMethod({
         Fetch a page of messages.  A page has a length of PAGE_SIZE and begins with the
         message seq = seq
         */
-        result.messages = ServerMessages.find({projectId, seq: {$gte: seq}}, {limit: PAGE_SIZE+1, sort: {seq: 1}}).fetch();
+        result.messages = ServerMessages.find(query, {limit: PAGE_SIZE+1, sort: {seq: 1}}).fetch();
         console.log("-- Fetched " + result.messages.length + " messages for this page");
 
         //console.log('-- Latest page message is: ' + JSON.stringify(result.messages[result.messages.length-1], null, 4));
@@ -70,15 +83,16 @@ export const loadMessages = new ValidatedMethod({
         */
 
         if(result.messages && result.messages.length > 0) {
-            var olderMessagesCount = ServerMessages.find({
-                projectId,
-                seq: {$lt: result.messages[0].seq}
-            }).count();
-
-            var newerMessagesCount = ServerMessages.find({
-                projectId,
-                seq: {$gt: result.messages[result.messages.length-1].seq}
-            }).count();
+            var query = {projectId, seq: {$lt: result.messages[0].seq}};
+            if(subjectId) {
+                query.subjectId = subjectId;
+            }
+            var olderMessagesCount = ServerMessages.find(query).count();
+            query = {projectId, seq: {$gt: result.messages[result.messages.length-1].seq}};
+            if(subjectId) {
+                query.subjectId = subjectId;
+            }
+            var newerMessagesCount = ServerMessages.find(query).count();
 
             result.showBackwardLink = olderMessagesCount > 0;
             result.showForwardLink = newerMessagesCount > 0;

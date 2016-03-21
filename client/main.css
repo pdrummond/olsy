@@ -4,12 +4,26 @@
 }
 
 html,body {
-    font-family: 'Roboto', sans-serif;
+    xfont-family: 'Roboto', sans-serif;
+    font-family: 'PT Sans Narrow', sans-serif;
     margin:0;
     padding:0;
     height:100%;
-
 }
+
+::-webkit-scrollbar {
+    width: 4px;
+    height:4px;
+}
+
+::-webkit-scrollbar-track {
+    background:lightgray;
+}
+
+::-webkit-scrollbar-thumb {
+    background:gray;
+}
+
 
 .app-container {
     height:calc(100% - 64px);
@@ -30,7 +44,7 @@ html,body {
 
 .message-list {
     height:100%;
-    padding: 10px 20px 5px 20px;
+    padding: 20px 20px 0px 20px;
     overflow-y: auto;
 }
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { browserHistory } from 'react-router';
 import ProseMirror from 'react-prosemirror';
 import 'prosemirror/dist/menu/tooltipmenu';
 import 'prosemirror/dist/markdown'
@@ -65,6 +66,24 @@ export default class MessageBox extends React.Component {
         return (
             <div className="message-box" style={{width:this.props.fullWidth?'100%':'calc(100% - 600px)'}}>
                 <Paper zDepth={1} style={{padding:'0px 20px 10px 20px', backgroundColor:'whitesmoke'}}>
+                    {this.renderSubjectUi()}
+                    <br/>
+                    <div className="markdown-content">
+                        <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'markdown', tooltipMenu: {selectedBlockMenu:true}}} />
+                    </div>
+                    <br/>
+                    <div style={{textAlign:'right', position:'relative', top:'5px'}}>
+                        <FlatButton label="Cancel" onClick={this.props.onCancelMessageSelected}/>
+                        <FlatButton label="Send Message" onClick={this.onSendMessageSelected} primary={true} />
+                    </div>
+                </Paper>
+            </div>
+        );
+    }
+
+    renderSubjectUi() {
+        if(this.props.showSubjectUi) {
+            return (
                     <span style={{display:'flex', alignItems: 'flex-end'}}>
                         <IconMenu
                             iconButtonElement={this.renderSubjectType()}
@@ -91,18 +110,8 @@ export default class MessageBox extends React.Component {
                         </IconMenu>
 
                     </span>
-                    <br/>
-                    <div className="markdown-content">
-                        <ProseMirror value={this.state.content} onChange={this.onContentChange} options={{docFormat: 'markdown', tooltipMenu: {selectedBlockMenu:true}}} />
-                    </div>
-                    <br/>
-                    <div style={{textAlign:'right', position:'relative', top:'5px'}}>
-                        <FlatButton label="Cancel" onClick={this.props.onCancelMessageSelected}/>
-                        <FlatButton label="Send Message" onClick={this.onSendMessageSelected} primary={true} />
-                    </div>
-                </Paper>
-            </div>
-        );
+            );
+        }
     }
 
     onSendMessageSelected() {
@@ -137,13 +146,14 @@ export default class MessageBox extends React.Component {
 
     handleClearSubject() {
         this.setState({selectedSubject: null, subjectType: DEFAULT_SUBJECT_TYPE, subjectTitle:''});
+        browserHistory.push(`/project/${this.state.selectedSubject.projectId}`);
     }
 
     renderSubjectType() {
         var subjectType = this.state.selectedSubject?this.state.selectedSubject.type:this.state.subjectType;
         switch(subjectType) {
             case Subjects.Type.SUBJECT_TYPE_DISCUSSION: return <IconButton><DiscussionIcon color={Colors.cyan900}/></IconButton>;
-            case Subjects.Type.SUBJECT_TYPE_TASK: return <IconButton><TaskIcon color={Colors.green700}/></IconButton>;
+                case Subjects.Type.SUBJECT_TYPE_TASK: return <IconButton><TaskIcon color={Colors.green700}/></IconButton>;
+                }
+            }
         }
-    }
-}

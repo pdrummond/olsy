@@ -96,8 +96,9 @@ export default class MessageItem extends React.Component {
                 <div>
                     <span style={{cursor:'pointer', display:"flex", alignItems: 'center'}} onClick={(e) => { this.setState({openSubjectPopover:true, subjectPopoverAnchorEl: e.currentTarget})}}>
                         {this.renderSubjectIcon(subject)}
+                        <span style={{marginLeft: '5px'}}> {this.props.projectKey}-{subject.seq}: </span>
                         <span style={{marginLeft: '5px'}}> {subject.title} </span>
-                        <span style={{marginLeft: '5px', color:'lightgray'}}> {this.props.projectKey}-{subject.seq}</span>
+
                     </span>
                     <Popover
                         open={this.state.openSubjectPopover}
@@ -108,14 +109,9 @@ export default class MessageItem extends React.Component {
                         >
                         <div style={style.popover}>
                             <List subheader="Subject">
-                                <MenuItem primaryText="Focus on this subject" leftIcon={<RemoveRedEye />} />
+                                <MenuItem onTouchTap={() => {self.setState({openSubjectPopover:false}); browserHistory.push(`/project/${subject.projectId}/subject/${subject._id}`); }} primaryText="Focus on this subject" leftIcon={<RemoveRedEye />} />
                                 <MenuItem onTouchTap={() => {self.setState({openSubjectPopover:false}); self.props.onSubjectSelected(subject)}} primaryText="Add message to this subject" leftIcon={<NewIcon />} />
-                                <MenuItem onTouchTap={() => {self.setState({openSubjectPopover:false}); browserHistory.push(`/project/${subject.projectId}/subject/${subject._id}`); }} primaryText="Show subject details" leftIcon={<SubjectDetailIcon />} />
-                            </List>
-                            <Divider />
-                            <List subheader="Message">
-                                <MenuItem primaryText="Edit message" leftIcon={<EditIcon />} />
-                                <MenuItem primaryText="Delete message" leftIcon={<Delete />} />
+                                <MenuItem primaryText="Edit Subject" leftIcon={<EditIcon />} />
                             </List>
                         </div>
                     </Popover>

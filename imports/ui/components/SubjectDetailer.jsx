@@ -118,20 +118,6 @@ export default class SubjectDetailer extends React.Component {
         );
     }
 
-    renderSubjectMessages() {
-        var key=0;
-        return this.props.subjectMessages.map(function(message) {
-            return (
-                <Card key={key++} className="subject-card">
-                    <CardText>
-                        <b>{message.username}</b><span style={{color:'gray'}}> 2 mins ago</span>
-                        <div style={{marginTop:'10px'}} className="markdown-content" dangerouslySetInnerHTML={ this.getHtmlContent( message.content ) } />
-                    </CardText>
-                </Card>
-            );
-        }.bind(this));
-    }
-
     getHtmlContent(content) {
         if ( content ) {
             return { __html: parseMarkdown(content) };

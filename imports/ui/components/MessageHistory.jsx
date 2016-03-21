@@ -25,10 +25,15 @@ export default class MessageHistory extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if(this.props.currentProject._id !== nextProps.currentProject._id) {
+        console.log("componentWillReceiveProps");
+        if(this.props.currentProject._id !== nextProps.currentProject._id || this.props.currentSubject !== nextProps.currentSubject) {
             console.log("project has changed - loading messages");
             this.setState({currentProject: nextProps.currentProject});
-            this.loadMessages(nextProps.currentProject._id);
+            var subjectId = null;
+            if(nextProps.currentSubject) {
+                subjectId = nextProps.currentSubject._id;
+            }
+            this.loadMessages(nextProps.currentProject._id, subjectId);
         }
     }
 
@@ -46,9 +51,13 @@ export default class MessageHistory extends React.Component {
         );
     }
 
-    loadMessages(projectId) {
+    loadMessages(projectId, subjectId) {
         console.log(`> loadMessages(${projectId})`);
-        loadMessages.call({projectId}, function(err, result) {
+        var query = {projectId};
+        if(subjectId) {
+            query.subjectId = subjectId;
+        }
+        loadMessages.call(query, function(err, result) {
             if(err) {
                 displayError(err);
             } else {

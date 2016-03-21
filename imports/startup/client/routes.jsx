@@ -22,6 +22,7 @@ export const renderRoutes = () => (
         <Route path="/welcome" component={WelcomeContainer}/>
         <Route path="/project/:projectId" component={ProjectContainer}/>
         <Route path="/project/:projectId/subject/:subjectId" component={ProjectContainer}/>
+        <Route path="/project/:projectId/subject/:subjectId/details" component={ProjectContainer}/>
         <Route path="signin" component={AuthPageSignIn}/>
         <Route path="join" component={AuthPageJoin}/>
         <Route path="*" component={NotFoundPage}/>

@@ -16,8 +16,12 @@ import Divider from 'material-ui/lib/divider';
 import Paper from 'material-ui/lib/paper';
 import FloatingActionButton from 'material-ui/lib/floating-action-button';
 import ContentAdd from 'material-ui/lib/svg-icons/content/add';
+import TaskIcon from 'material-ui/lib/svg-icons/alert/error';
+import DiscussionIcon from 'material-ui/lib/svg-icons/communication/chat';
 
 import { Projects } from '../../api/projects/projects.js';
+import { Subjects } from '../../api/subjects/subjects.js';
+
 import ProjectLister from '../components/ProjectLister';
 import SubjectLister from '../components/SubjectLister';
 import SubjectDetailer from '../components/SubjectDetailer';
@@ -26,6 +30,14 @@ import ConfirmProjectDeleteDialog from '../components/ConfirmProjectDeleteDialog
 import MessageHistory from '../components/MessageHistory';
 import MessageBox from '../components/MessageBox';
 import { displayError } from '../helpers/errors.js';
+
+const style = {
+    subjectAvatar: {
+        position: 'relative',
+        top: '5px',
+        marginRight: '10px'
+    }
+};
 
 import {
     insertProject,
@@ -54,7 +66,7 @@ export default class ProjectPage extends React.Component {
             openMessageBox: true,
             openLeftSidebar: false,
             dockLeftSidebar: true,
-            openRightSidebar: true,
+            openRightSidebar: false,
             dockRightSidebar: true,
             openNewProjectDialog: false,
             openConfirmProjectDeleteDialog: false
@@ -73,9 +85,7 @@ export default class ProjectPage extends React.Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        console.log("componentWillReceiveProps: " + JSON.stringify(nextProps.currentProject));
         if(this.props.currentProject == null || this.props.currentProject._id !== nextProps.currentProject._id) {
-            console.log("project has changed");
             this.setState({currentProject: nextProps.currentProject, selectedSubject: null});
         }
     }
@@ -107,7 +117,7 @@ export default class ProjectPage extends React.Component {
                     <AppBar
                         title="Projects"
                         iconElementRight={<FlatButton onTouchTap={this.onNewProjectSelected} label="New Project" primary={true} />}
-                        style={{backgroundColor: Colors.red700}}
+                        style={{backgroundColor: Colors.cyan900}}
                         onLeftIconButtonTouchTap={this.handleToggleLeftSidebar}/>
                     <ProjectLister
                         projects={this.props.projects}
@@ -128,14 +138,15 @@ export default class ProjectPage extends React.Component {
                     <AppBar
                         title={this.renderRightViewTitle()}
                         iconElementRight={<FlatButton label="Create" primary={true} />}
-                        style={{backgroundColor: Colors.red700}}
+                        style={{backgroundColor: Colors.cyan900}}
                         onLeftIconButtonTouchTap={this.handleToggleRightSidebar} />
                     {this.renderRightView()}
                 </LeftNav>
                 <AppBar
-                    title={this.state.currentProject.name}
+                    title={<span style={{cursor:'pointer'}}>{this.state.currentProject.name}</span>}
+                    onTitleTouchTap={() => { browserHistory.push('/project/' + this.state.currentProject._id)}}
                     onLeftIconButtonTouchTap={this.handleToggleLeftSidebar}
-                    style={{backgroundColor: Colors.red700}}
+                    style={{backgroundColor: Colors.cyan900}}
                     iconElementRight={
                         <IconMenu
                             iconButtonElement={
@@ -153,14 +164,27 @@ export default class ProjectPage extends React.Component {
                     />
                 <div className="app-container" style={{width:this.state.windowWidth >= AUTO_DOCK_WIDTH && this.state.openRightSidebar?'calc(100% - 600px)':'100%'}}>
                     {this.renderSignInBanner()}
+                    {this.renderSubjectHeader()}
                     <MessageHistory
+                        currentSubject={this.props.currentSubject}
                         onSubjectSelected={this.handleMessageSubjectSelected}
                         currentProject={this.state.currentProject}
-                        style={{height:(this.state.openMessageBox?'calc(100% - 285px)':'calc(100% - 0px)') }}/>
+                        style={{height:this.calculateMessageHistoryHeight()}}/>
                     {this.renderMessageBox()}
                 </div>
             </div>
         );
+    }
+
+    calculateMessageHistoryHeight() {
+        var height = 0;
+        if(this.state.openMessageBox) {
+            height += 285;
+        }
+        if(this.props.currentSubject) {
+            height += 100;
+        }
+        return 'calc(100% - ' + height + 'px)';
     }
 
     renderMessageBox() {
@@ -170,7 +194,8 @@ export default class ProjectPage extends React.Component {
                     <div style={{display:(this.state.openMessageBox?'block':'none')}}>
                         <MessageBox
                             projectKey={this.state.currentProject.key}
-                            selectedSubject={this.state.selectedSubject}
+                            selectedSubject={this.state.selectedSubject?this.state.selectedSubject:this.props.currentSubject}
+                            showSubjectUi={!this.props.currentSubject}
                             subjects={this.props.subjects}
                             onCancelMessageSelected={() => {this.setState({openMessageBox: false})}}
                             onSendMessageSelected={this.handleSendMessageSelected}
@@ -186,6 +211,30 @@ export default class ProjectPage extends React.Component {
             );
 
         }
+    }
+
+    renderSubjectHeader() {
+        if(this.props.currentSubject) {
+            return (
+                <div style={{padding:'15px 20px 10px 20px', background: 'whitesmoke', borderBottom: '1px solid lightgray'}}>
+                    <div style={{color: '#ff5e0e', fontSize:'40px'}}>
+                        {this.renderSubjectAvatar()}
+                        <span style={{color:'gray'}}>{this.props.currentProject.key}-{this.props.currentSubject.seq}:</span> {this.props.currentSubject.title}
+                    </div>
+                    <div style={{fontSize: '18px', color: 'gray'}}>
+                        <span style={{paddingLeft:'50px'}}>pdrummond created this subject on March 21st, 2016 · 40 messages</span>
+                    </div>
+                </div>
+            )
+        }
+    }
+
+    renderSubjectAvatar() {
+        switch(this.props.currentSubject.type) {
+            case Subjects.Type.SUBJECT_TYPE_DISCUSSION: return <Avatar style={style.subjectAvatar} icon={<DiscussionIcon />} backgroundColor={Colors.cyan900} />;
+            case Subjects.Type.SUBJECT_TYPE_TASK: return <Avatar style={style.subjectAvatar} icon={<TaskIcon />} backgroundColor={Colors.green700} />;
+        }
+
     }
 
     renderSignInBanner() {
@@ -283,15 +332,14 @@ export default class ProjectPage extends React.Component {
     }
 
     renderRightView() {
-        if(this.props.currentSubject) {
+        /*if(this.props.currentSubject) {
             return <SubjectDetailer
                 projectKey={this.state.currentProject.key}
                 subject={this.props.currentSubject}
-                subjectMessages={this.props.subjectMessages}
                 onSaveSelected={this.handleSubjectSaveSelected}/>;
-        } else {
+        } else {*/
             return <SubjectLister projectKey={this.state.currentProject.key} subjects={this.props.subjects}/>;
-        }
+        //}
     }
 
     handleSubjectSaveSelected(subject, type) {

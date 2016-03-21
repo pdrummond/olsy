@@ -29,11 +29,11 @@ export default createContainer((props) => {
         }, {sort: {updatedAt: -1, title: 1}}).fetch(),
         currentProject: Projects.findOne(props.params.projectId),
         subjects: Subjects.find({projectId: props.params.projectId}, {sort: {updatedAt: -1, title: 1}}).fetch(),
-        currentSubject: Subjects.findOne(props.params.subjectId),
-        subjectMessages: ClientMessages.find({projectId: props.params.projectId, subjectId: props.params.subjectId}, {sort: {createdAt: 1}}).fetch()
+        currentSubject: Subjects.findOne(props.params.subjectId)
     };
     console.log("loading: " + data.loading);
     console.log("USER: " + JSON.stringify(Meteor.user()));
+    console.log("Current subject: " + JSON.stringify(data.currentSubject));
     return data;
 
 }, ProjectPage);
